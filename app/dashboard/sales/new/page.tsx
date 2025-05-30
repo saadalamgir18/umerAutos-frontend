@@ -112,6 +112,8 @@ export default function NewSalePage() {
       }
 
       const data = await response.json()
+      console.log(data);
+      
       setFilteredProducts(data.data)
     } catch (err) {
       console.error("Failed to fetch products:", err)

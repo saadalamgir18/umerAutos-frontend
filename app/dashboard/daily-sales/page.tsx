@@ -73,14 +73,15 @@ export default function DailySalesPage() {
         throw new Error(`Error fetching daily sales: ${res.status}`)
       }
 
-      const json: ApiResponse = await res.json()
+      const json = await res.json()
 
-        const itemsArray = json.data
+        const itemsArray = json
 
-        if(itemsArray?.length> 0){
+        
+
+        if(itemsArray.length> 0){
 
        
-        console.log("itemsArray: " , itemsArray)
 
         // Calculate totals
         const totalItemsSold = itemsArray.reduce((sum: number, item: DailySaleItem) => sum + item.quantitySold, 0)
@@ -88,13 +89,14 @@ export default function DailySalesPage() {
         const totalProfit = itemsArray.reduce((sum: number, item: DailySaleItem) => sum + item.profit, 0)
 
         setTotalProfit(totalProfit)
+
         setDailySales(itemsArray)
         setTotalItems(totalItemsSold)
         setTotalSales(totalSalesAmount)
         setTotalTransactions(itemsArray.length)
 
         // Update pagination information
-        if (json.pagination) {
+        if (json?.pagination) {
           setTotalDailySales(json.pagination.totalItems)
           setTotalPages(json.pagination.totalPages)
           setCurrentPage(json.pagination.currentPage)
@@ -241,6 +243,8 @@ export default function DailySalesPage() {
                   <TableBody>
                     {dailySales.length === 0 ? (
                       <TableRow>
+                                              {JSON.stringify(dailySales)}
+
                         <TableCell colSpan={5} className="text-center py-8">
                           <div className="flex flex-col items-center justify-center text-muted-foreground">
                             <ShoppingCart className="h-12 w-12 mb-2 opacity-20" />

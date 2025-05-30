@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useSelector } from "react-redux"
-import type { RootState } from "@/lib/redux/store"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, Phone, ArrowRight, Plus, Loader2 } from "lucide-react"
+import { Search, ArrowRight, Plus, Loader2, Calendar, ShoppingBag } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {
   Pagination,
@@ -21,29 +19,29 @@ import {
 } from "@/components/ui/pagination"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-interface Transaction {
-  saleId: string
-  date: string
-  amount: number
-  paid: number
-  remaining: number
+interface SaleItem {
+  id: string | null
+  productId: string
+  productName: string
+  quantitySold: number
+  totalPrice: number
+  profit: number
+  createdAt: string
 }
 
-interface Customer {
+interface Sale {
+  customerName: string
+  totalAmountSummary: number
+  quantitySoldSummary: number
+  saleItems: SaleItem[]
+  paymentStatus: "PAID" | "UNPAID" | "PARTIAL"
+  createdAt: string
   id: string
-  name: string
-  phone: string
-  address: string
-  totalCredit: number
-  transactions: Transaction[]
 }
 
 interface ApiResponse {
-  data: Customer[]
-  message: string
-  status: number
-  isSuccess: boolean
-  pagination?: {
+  data: Sale[]
+  pagination: {
     totalItems: number
     totalPages: number
     currentPage: number
@@ -55,7 +53,6 @@ export default function KhataPage() {
   const [mounted, setMounted] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const router = useRouter()
-  const { customers } = useSelector((state: RootState) => state.sales)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -64,96 +61,37 @@ export default function KhataPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [totalItems, setTotalItems] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
-  const [allCustomers, setAllCustomers] = useState<Customer[]>([])
-
-  // Mock data for initial development
-  const mockCustomers = [
-    {
-      id: "cust-1",
-      name: "Ahmed Ali",
-      phone: "0300-1234567",
-      address: "Street 5, Rawalpindi",
-      totalCredit: 15000,
-      transactions: [
-        {
-          saleId: "sale-1",
-          date: "2023-04-15T10:30:00Z",
-          amount: 10000,
-          paid: 5000,
-          remaining: 5000,
-        },
-        {
-          saleId: "sale-2",
-          date: "2023-05-20T14:45:00Z",
-          amount: 12000,
-          paid: 2000,
-          remaining: 10000,
-        },
-      ],
-    },
-    {
-      id: "cust-2",
-      name: "Muhammad Imran",
-      phone: "0333-9876543",
-      address: "Main Road, Lahore",
-      totalCredit: 8500,
-      transactions: [
-        {
-          saleId: "sale-3",
-          date: "2023-06-10T09:15:00Z",
-          amount: 8500,
-          paid: 0,
-          remaining: 8500,
-        },
-      ],
-    },
-    {
-      id: "cust-3",
-      name: "Farhan Khan",
-      phone: "0321-5554433",
-      address: "Model Town, Karachi",
-      totalCredit: 3200,
-      transactions: [
-        {
-          saleId: "sale-4",
-          date: "2023-07-05T16:20:00Z",
-          amount: 5200,
-          paid: 2000,
-          remaining: 3200,
-        },
-      ],
-    },
-  ]
+  const [sales, setSales] = useState<Sale[]>([])
 
   useEffect(() => {
     setMounted(true)
-    fetchCustomers()
+    fetchSales()
   }, [currentPage, itemsPerPage])
 
-  const fetchCustomers = async () => {
+  const fetchSales = async () => {
     setLoading(true)
     setError(null)
 
     try {
-      // In a real app, you would fetch from an API with pagination
-      // For now, we'll simulate pagination with the mock data
+      const response = await fetch(
+        `http://localhost:8083/api/v1/sales-summary?page=${currentPage}&limit=${itemsPerPage}&status=unpaid`,
+      )
 
-      // Simulate API call with pagination
-      // const response = await fetch(`http://localhost:8083/api/v1/customers?page=${currentPage}&limit=${itemsPerPage}`)
-      // const data: ApiResponse = await response.json()
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
 
-      // For now, use mock data
-      const combinedCustomers = [...mockCustomers, ...customers]
-      setAllCustomers([])
+      const data: ApiResponse = await response.json()
 
-      // Simulate pagination
-      const totalItems = combinedCustomers.length
-      const totalPages = Math.ceil(totalItems / itemsPerPage)
+      console.log("API Response:", data)
 
-      setTotalItems(totalItems)
-      setTotalPages(totalPages)
+      setSales(data.data)
+
+      // Update pagination info
+      setTotalItems(data.pagination.totalItems)
+      setTotalPages(data.pagination.totalPages)
     } catch (err) {
-      console.error("Error fetching customers:", err)
+      console.error("Error fetching sales:", err)
       setError(err instanceof Error ? err.message : "An unknown error occurred")
     } finally {
       setLoading(false)
@@ -172,16 +110,17 @@ export default function KhataPage() {
 
   if (!mounted) return null
 
-  // Filter customers based on search query
-  const filteredCustomers = searchQuery
-    ? allCustomers.filter(
-        (customer) =>
-          customer.name.toLowerCase().includes(searchQuery.toLowerCase()) || customer.phone.includes(searchQuery),
+  // Filter sales based on search query
+  const filteredSales = searchQuery
+    ? sales.filter(
+        (sale) =>
+          sale.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          sale.id.toLowerCase().includes(searchQuery.toLowerCase()),
       )
-    : allCustomers
+    : sales
 
-  // Apply pagination to filtered customers
-  const paginatedCustomers = filteredCustomers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  // Apply pagination to filtered sales
+  const paginatedSales = filteredSales.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   // Format currency
   const formatCurrency = (amount: number) => {
@@ -193,25 +132,31 @@ export default function KhataPage() {
     }).format(amount)
   }
 
+  // Format date
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-PK", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  }
+
   // Generate page numbers for pagination
   const getPageNumbers = () => {
     const pageNumbers = []
     const maxPagesToShow = 5
 
     if (totalPages <= maxPagesToShow) {
-      // Show all pages if total pages are less than or equal to maxPagesToShow
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i)
       }
     } else {
-      // Always include first page
       pageNumbers.push(1)
 
       if (currentPage > 3) {
         pageNumbers.push("ellipsis-start")
       }
 
-      // Pages around current page
       const startPage = Math.max(2, currentPage - 1)
       const endPage = Math.min(totalPages - 1, currentPage + 1)
 
@@ -223,7 +168,6 @@ export default function KhataPage() {
         pageNumbers.push("ellipsis-end")
       }
 
-      // Always include last page
       if (totalPages > 1) {
         pageNumbers.push(totalPages)
       }
@@ -243,8 +187,8 @@ export default function KhataPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Customer Credit Records</CardTitle>
-          <CardDescription>Manage customers who have outstanding balances (udhar)</CardDescription>
+          <CardTitle>Unpaid Sales Records</CardTitle>
+          <CardDescription>Manage sales with outstanding balances (udhar)</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-2 mb-6">
@@ -252,7 +196,7 @@ export default function KhataPage() {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search by customer name or phone..."
+                placeholder="Search by customer name or sale ID..."
                 className="pl-8"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -266,8 +210,8 @@ export default function KhataPage() {
             </div>
           ) : error ? (
             <div className="text-center py-8 text-red-500">
-              <p>Error loading customers: {error}</p>
-              <Button variant="outline" onClick={fetchCustomers} className="mt-4">
+              <p>Error loading sales: {error}</p>
+              <Button variant="outline" onClick={fetchSales} className="mt-4">
                 Try Again
               </Button>
             </div>
@@ -277,42 +221,51 @@ export default function KhataPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>Sale ID</TableHead>
                       <TableHead>Customer Name</TableHead>
-                      <TableHead>Phone Number</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Items</TableHead>
                       <TableHead className="text-right">Outstanding Amount</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paginatedCustomers.length === 0 ? (
+                    {paginatedSales.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
-                          No customers with outstanding balances found
+                        <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                          No sales with outstanding balances found
                         </TableCell>
                       </TableRow>
                     ) : (
-                      paginatedCustomers.map((customer) => (
-                        <TableRow key={customer.id}>
-                          <TableCell className="font-medium">{customer.name}</TableCell>
+                      paginatedSales.map((sale) => (
+                        <TableRow key={sale.id}>
+                          <TableCell className="font-medium">#{sale.id.slice(-6)}</TableCell>
+                          <TableCell>{sale.customerName}</TableCell>
                           <TableCell>
                             <div className="flex items-center">
-                              <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
-                              {customer.phone}
+                              <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+                              {formatDate(sale.createdAt)}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center">
+                              <ShoppingBag className="mr-2 h-4 w-4 text-muted-foreground" />
+                              {sale.quantitySoldSummary} item(s)
                             </div>
                           </TableCell>
                           <TableCell className="text-right">
                             <Badge
-                              variant={customer.totalCredit > 10000 ? "destructive" : "secondary"}
+                              variant={sale.totalAmountSummary > 10000 ? "destructive" : "secondary"}
                               className="text-sm"
                             >
-                              {formatCurrency(customer.totalCredit)}
+                              {formatCurrency(sale.totalAmountSummary)}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => router.push(`/dashboard/khata/${customer.id}`)}
+                              onClick={() => router.push(`/dashboard/khata/${sale.id}`)}
                             >
                               <ArrowRight className="h-4 w-4" />
                             </Button>
@@ -324,16 +277,13 @@ export default function KhataPage() {
                 </Table>
               </div>
 
-              {/* Only show pagination if there are customers */}
-              {filteredCustomers.length > 0 && (
+              {filteredSales.length > 0 && (
                 <div className="flex items-center justify-between mt-4">
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-muted-foreground">
-                      Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredCustomers.length)} to{" "}
-                      {Math.min(currentPage * itemsPerPage, filteredCustomers.length)} of {filteredCustomers.length}{" "}
-                      entries
+                      Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredSales.length)} to{" "}
+                      {Math.min(currentPage * itemsPerPage, filteredSales.length)} of {filteredSales.length} entries
                     </p>
-                    
                   </div>
 
                   <Pagination>
@@ -370,21 +320,22 @@ export default function KhataPage() {
                       </PaginationItem>
                     </PaginationContent>
                   </Pagination>
+
                   <div className="flex items-center gap-1">
-                      <span className="text-sm text-muted-foreground">Show</span>
-                      <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
-                        <SelectTrigger className="h-8 w-[70px]">
-                          <SelectValue placeholder={itemsPerPage.toString()} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="5">5</SelectItem>
-                          <SelectItem value="10">10</SelectItem>
-                          <SelectItem value="20">20</SelectItem>
-                          <SelectItem value="50">50</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <span className="text-sm text-muted-foreground">per page</span>
-                    </div>
+                    <span className="text-sm text-muted-foreground">Show</span>
+                    <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
+                      <SelectTrigger className="h-8 w-[70px]">
+                        <SelectValue placeholder={itemsPerPage.toString()} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <span className="text-sm text-muted-foreground">per page</span>
+                  </div>
                 </div>
               )}
             </>

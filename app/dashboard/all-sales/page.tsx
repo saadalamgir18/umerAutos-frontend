@@ -87,15 +87,14 @@ export default function DailySalesPage() {
       const json = await res.json()
 
         // Assuming the API returns data in this format
-        // { data: [...items], meta: { total: 100, page: 1, limit: 10, totalPages: 10 } }
         const itemsArray = json.data || []
         const meta = json.pagination || { total: itemsArray.length, page: 1, limit, totalPages: 1 }
-        const sorted = [...itemsArray].sort((a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
+        // const sorted = [...itemsArray].sort((a, b) =>
+        //   new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        // );
 
 
-        setDailySales(sorted)
+        setDailySales(itemsArray)
         setTotalItems(meta.totalItems || itemsArray.length)
         setTotalPages(meta.totalPages || Math.ceil(itemsArray.length / limit))
 

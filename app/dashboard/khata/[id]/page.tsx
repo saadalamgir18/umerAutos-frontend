@@ -2,16 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useSelector } from "react-redux"
-import type { RootState } from "@/lib/redux/store"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, Phone, MapPin, Calendar, Receipt, CheckCircle2, AlertCircle, PlusCircle } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import type { Customer, Sale } from "@/lib/redux/slices/salesSlice"
+import { ArrowLeft, Calendar, PlusCircle, CreditCard, User } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -19,210 +16,195 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
+import { useToast } from "@/hooks/use-toast"
 
-export default function CustomerKhataPage({ params }: { params: { id: string } }) {
+interface SaleItem {
+  id: string | null
+  productId: string
+  productName: string
+  quantitySold: number
+  totalPrice: number
+  profit: number
+  createdAt: string
+}
+
+interface Sale {
+  customerName: string
+  totalAmountSummary: number
+  quantitySoldSummary: number
+  saleItems: SaleItem[]
+  paymentStatus: "PAID" | "UNPAID" | "PARTIAL"
+  createdAt: string
+  id: string
+}
+
+export default function SaleDetailPage({ params }: { params: { id: string } }) {
   const [mounted, setMounted] = useState(false)
-  const [customer, setCustomer] = useState<Customer | null>(null)
+  const [sale, setSale] = useState<Sale | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [paymentAmount, setPaymentAmount] = useState("")
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false)
+  const [paymentType, setPaymentType] = useState<"selected" | "all" | "single">("selected")
+  const [singleItemId, setSingleItemId] = useState<string>("")
   const router = useRouter()
-  const { customers, sales } = useSelector((state: RootState) => state.sales)
+  const { toast } = useToast()
 
-  // Mock data for initial development
-  const mockCustomers: Customer[] = [
-    {
-      id: "cust-1",
-      name: "Ahmed Ali",
-      phone: "0300-1234567",
-      address: "Street 5, Rawalpindi",
-      totalCredit: 15000,
-      transactions: [
-        {
-          saleId: "sale-1",
-          date: "2023-04-15T10:30:00Z",
-          amount: 10000,
-          paid: 5000,
-          remaining: 5000,
-        },
-        {
-          saleId: "sale-2",
-          date: "2023-05-20T14:45:00Z",
-          amount: 12000,
-          paid: 2000,
-          remaining: 10000,
-        },
-      ],
-    },
-    {
-      id: "cust-2",
-      name: "Muhammad Imran",
-      phone: "0333-9876543",
-      address: "Main Road, Lahore",
-      totalCredit: 8500,
-      transactions: [
-        {
-          saleId: "sale-3",
-          date: "2023-06-10T09:15:00Z",
-          amount: 8500,
-          paid: 0,
-          remaining: 8500,
-        },
-      ],
-    },
-    {
-      id: "cust-3",
-      name: "Farhan Khan",
-      phone: "0321-5554433",
-      address: "Model Town, Karachi",
-      totalCredit: 3200,
-      transactions: [
-        {
-          saleId: "sale-4",
-          date: "2023-07-05T16:20:00Z",
-          amount: 5200,
-          paid: 2000,
-          remaining: 3200,
-        },
-      ],
-    },
-  ]
-
-  // Mock sales data
-  const mockSales: Sale[] = [
-    {
-      id: "sale-1",
-      items: [
-        {
-          productId: "prod-1",
-          productName: "Engine Oil Filter",
-          sku: "OIL-FLT-001",
-          shelfCode: "A1",
-          quantity: 2,
-          unitPrice: 1500,
-          discount: 0,
-          tax: 0,
-          total: 3000,
-        },
-        {
-          productId: "prod-2",
-          productName: "Brake Pads",
-          sku: "BRK-PAD-002",
-          shelfCode: "B3",
-          quantity: 1,
-          unitPrice: 7000,
-          discount: 0,
-          tax: 0,
-          total: 7000,
-        },
-      ],
-      customerId: "cust-1",
-      customerName: "Ahmed Ali",
-      customerPhone: "0300-1234567",
-      subtotal: 10000,
-      discount: 0,
-      tax: 0,
-      total: 10000,
-      paymentStatus: "partial",
-      paymentAmount: 5000,
-      createdAt: "2023-04-15T10:30:00Z",
-      updatedAt: "2023-04-15T10:30:00Z",
-    },
-    {
-      id: "sale-2",
-      items: [
-        {
-          productId: "prod-3",
-          productName: "Chain Kit",
-          sku: "CHN-KIT-003",
-          shelfCode: "C2",
-          quantity: 1,
-          unitPrice: 12000,
-          discount: 0,
-          tax: 0,
-          total: 12000,
-        },
-      ],
-      customerId: "cust-1",
-      customerName: "Ahmed Ali",
-      customerPhone: "0300-1234567",
-      subtotal: 12000,
-      discount: 0,
-      tax: 0,
-      total: 12000,
-      paymentStatus: "partial",
-      paymentAmount: 2000,
-      createdAt: "2023-05-20T14:45:00Z",
-      updatedAt: "2023-05-20T14:45:00Z",
-    },
-    {
-      id: "sale-3",
-      items: [
-        {
-          productId: "prod-4",
-          productName: "Carburetor",
-          sku: "CRB-001",
-          shelfCode: "D1",
-          quantity: 1,
-          unitPrice: 8500,
-          discount: 0,
-          tax: 0,
-          total: 8500,
-        },
-      ],
-      customerId: "cust-2",
-      customerName: "Muhammad Imran",
-      customerPhone: "0333-9876543",
-      subtotal: 8500,
-      discount: 0,
-      tax: 0,
-      total: 8500,
-      paymentStatus: "unpaid",
-      paymentAmount: 0,
-      createdAt: "2023-06-10T09:15:00Z",
-      updatedAt: "2023-06-10T09:15:00Z",
-    },
-    {
-      id: "sale-4",
-      items: [
-        {
-          productId: "prod-5",
-          productName: "Clutch Plates",
-          sku: "CLT-PLT-001",
-          shelfCode: "E2",
-          quantity: 1,
-          unitPrice: 5200,
-          discount: 0,
-          tax: 0,
-          total: 5200,
-        },
-      ],
-      customerId: "cust-3",
-      customerName: "Farhan Khan",
-      customerPhone: "0321-5554433",
-      subtotal: 5200,
-      discount: 0,
-      tax: 0,
-      total: 5200,
-      paymentStatus: "partial",
-      paymentAmount: 2000,
-      createdAt: "2023-07-05T16:20:00Z",
-      updatedAt: "2023-07-05T16:20:00Z",
-    },
-  ]
+  const saleId = params.id
 
   useEffect(() => {
     setMounted(true)
+    fetchSaleData()
+  }, [saleId])
 
-    // Find customer from Redux store or mock data
-    const foundCustomer = [...customers, ...mockCustomers].find((c) => c.id === params.id)
-    if (foundCustomer) {
-      setCustomer(foundCustomer)
+  const fetchSaleData = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      // In a real app, you would fetch a specific sale by ID
+      // For now, we'll fetch all sales and find the one with matching ID
+      const response = await fetch(`http://localhost:8083/api/v1/sales-summary?status=unpaid&limit=1000`)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      // Find the sale with the matching ID
+      const foundSale = data.data.find((s: Sale) => s.id === saleId)
+
+      if (!foundSale) {
+        setError("Sale not found or has no outstanding balance")
+        return
+      }
+
+      setSale(foundSale)
+    } catch (err) {
+      console.error("Error fetching sale data:", err)
+      setError(err instanceof Error ? err.message : "An unknown error occurred")
+    } finally {
+      setLoading(false)
     }
-  }, [params.id, customers])
+  }
 
-  if (!mounted || !customer) return null
+  const handleItemSelection = (itemId: string, checked: boolean) => {
+    const newSelected = new Set(selectedItems)
+    if (checked) {
+      newSelected.add(itemId)
+    } else {
+      newSelected.delete(itemId)
+    }
+    setSelectedItems(newSelected)
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked && sale) {
+      const allItemIds = sale.saleItems.map((item) => item.productId)
+      setSelectedItems(new Set(allItemIds))
+    } else {
+      setSelectedItems(new Set())
+    }
+  }
+
+  const openPaymentDialog = (type: "selected" | "all" | "single", itemId?: string) => {
+    setPaymentType(type)
+    if (type === "single" && itemId && sale) {
+      setSingleItemId(itemId)
+      const item = sale.saleItems.find((item) => item.productId === itemId)
+      setPaymentAmount(item?.totalPrice.toString() || "")
+    } else if (type === "selected") {
+      const selectedTotal = getSelectedItemsTotal()
+      setPaymentAmount(selectedTotal.toString())
+    } else if (type === "all" && sale) {
+      setPaymentAmount(sale.totalAmountSummary.toString())
+    }
+    setIsPaymentDialogOpen(true)
+  }
+
+  const getSelectedItemsTotal = () => {
+    if (!sale) return 0
+    return sale.saleItems
+      .filter((item) => selectedItems.has(item.productId))
+      .reduce((total, item) => total + item.totalPrice, 0)
+  }
+
+  const handlePaymentSubmit = async () => {
+    try {
+      const amount = Number.parseFloat(paymentAmount)
+      if (amount <= 0) {
+        toast({
+          title: "Invalid Amount",
+          description: "Please enter a valid payment amount",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Here you would make an API call to record the payment
+      // For now, we'll just show a success message
+
+      let itemsToUpdate: SaleItem[] = []
+
+      if (paymentType === "single" && sale) {
+        const item = sale.saleItems.find((item) => item.productId === singleItemId)
+        if (item) itemsToUpdate = [item]
+      } else if (paymentType === "selected" && sale) {
+        itemsToUpdate = sale.saleItems.filter((item) => selectedItems.has(item.productId))
+      } else if (paymentType === "all" && sale) {
+        itemsToUpdate = sale.saleItems
+      }
+
+      // API call would go here
+      // await recordPayment(saleId, amount, itemsToUpdate)
+
+      toast({
+        title: "Payment Recorded",
+        description: `Payment of ${formatCurrency(amount)} recorded successfully for ${itemsToUpdate.length} item(s)`,
+      })
+
+      setIsPaymentDialogOpen(false)
+      setPaymentAmount("")
+      setSelectedItems(new Set())
+
+      // Refresh the data
+      fetchSaleData()
+    } catch (err) {
+      toast({
+        title: "Payment Failed",
+        description: "Failed to record payment. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  if (!mounted) return null
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading sale data...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !sale) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500 mb-4">{error || "Sale not found"}</p>
+        <Button onClick={() => router.back()}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Go Back
+        </Button>
+      </div>
+    )
+  }
 
   // Format currency
   const formatCurrency = (amount: number) => {
@@ -240,24 +222,12 @@ export default function CustomerKhataPage({ params }: { params: { id: string } }
       year: "numeric",
       month: "short",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     })
   }
 
-  // Get sale details for a transaction
-  const getSaleDetails = (saleId: string) => {
-    return [...sales, ...mockSales].find((sale) => sale.id === saleId)
-  }
-
-  // Handle payment submission
-  const handlePaymentSubmit = () => {
-    // In a real app, you would dispatch an action to update the customer's credit
-    // For now, we'll just close the dialog
-    setIsPaymentDialogOpen(false)
-    setPaymentAmount("")
-
-    // Show success message or update UI
-    alert(`Payment of ${paymentAmount} PKR recorded successfully`)
-  }
+  const selectedTotal = getSelectedItemsTotal()
 
   return (
     <div className="space-y-6">
@@ -266,202 +236,183 @@ export default function CustomerKhataPage({ params }: { params: { id: string } }
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">{customer.name}'s Khata</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Sale #{sale.id.slice(-6)}</h1>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Customer Information</CardTitle>
+            <CardTitle>Sale Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center">
-              <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span>{customer.phone}</span>
+              <User className="h-4 w-4 mr-2 text-muted-foreground" />
+              <span>Customer: {sale.customerName}</span>
             </div>
-            {customer.address && (
-              <div className="flex items-center">
-                <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{customer.address}</span>
-              </div>
-            )}
+            <div className="flex items-center">
+              <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+              <span>Date: {formatDate(sale.createdAt)}</span>
+            </div>
             <div className="pt-4">
               <div className="text-sm text-muted-foreground mb-1">Total Outstanding</div>
-              <div className="text-3xl font-bold text-primary">{formatCurrency(customer.totalCredit)}</div>
+              <div className="text-3xl font-bold text-primary">{formatCurrency(sale.totalAmountSummary)}</div>
+            </div>
+            <div className="pt-2">
+              <div className="text-sm text-muted-foreground mb-1">Total Items</div>
+              <div className="text-xl font-semibold">{sale.quantitySoldSummary} items</div>
             </div>
           </CardContent>
-          <CardFooter>
-            <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="w-full">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Record Payment
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Record Payment</DialogTitle>
-                  <DialogDescription>Enter the amount received from {customer.name}</DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="amount">Payment Amount (PKR)</Label>
-                    <Input
-                      id="amount"
-                      type="number"
-                      placeholder="Enter amount"
-                      value={paymentAmount}
-                      onChange={(e) => setPaymentAmount(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    onClick={handlePaymentSubmit}
-                    disabled={!paymentAmount || Number.parseFloat(paymentAmount) <= 0}
-                  >
-                    Record Payment
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+          <CardFooter className="flex gap-2">
+            <Button className="flex-1" onClick={() => openPaymentDialog("all")}>
+              <CreditCard className="mr-2 h-4 w-4" />
+              Pay All ({formatCurrency(sale.totalAmountSummary)})
+            </Button>
           </CardFooter>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Transaction History</CardTitle>
-            <CardDescription>All purchases and payments</CardDescription>
+            <CardTitle>Selected Items</CardTitle>
+            <CardDescription>
+              {selectedItems.size} item(s) selected
+              {selectedItems.size > 0 && ` - Total: ${formatCurrency(selectedTotal)}`}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Details</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead className="text-right">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {customer.transactions.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
-                        No transactions found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    customer.transactions.map((transaction, index) => {
-                      const sale = getSaleDetails(transaction.saleId)
-                      return (
-                        <TableRow
-                          key={index}
-                          className="cursor-pointer hover:bg-muted/50"
-                          onClick={() => {
-                            if (sale) {
-                              router.push(`/dashboard/sales/${transaction.saleId}`)
-                            }
-                          }}
-                        >
-                          <TableCell>
-                            <div className="flex items-center">
-                              <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                              {formatDate(transaction.date)}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center">
-                              <Receipt className="mr-2 h-4 w-4 text-muted-foreground" />
-                              {sale ? `Purchase - ${sale.items.length} items` : "Payment"}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right font-medium">{formatCurrency(transaction.amount)}</TableCell>
-                          <TableCell className="text-right">
-                            {transaction.remaining > 0 ? (
-                              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                                <AlertCircle className="mr-1 h-3 w-3" />
-                                Partial
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                <CheckCircle2 className="mr-1 h-3 w-3" />
-                                Paid
-                              </Badge>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      )
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+            {selectedItems.size > 0 ? (
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  You have selected {selectedItems.size} item(s) worth {formatCurrency(selectedTotal)}
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Select items below to make a partial payment</p>
+            )}
           </CardContent>
+          <CardFooter>
+            <Button
+              className="w-full"
+              disabled={selectedItems.size === 0}
+              onClick={() => openPaymentDialog("selected")}
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Pay Selected ({formatCurrency(selectedTotal)})
+            </Button>
+          </CardFooter>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Purchase Details</CardTitle>
-          <CardDescription>All items purchased on credit</CardDescription>
+          <CardTitle className="flex items-center justify-between">
+            <span>Sale Items</span>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="select-all"
+                checked={selectedItems.size === sale.saleItems.length && sale.saleItems.length > 0}
+                onCheckedChange={handleSelectAll}
+              />
+              <Label htmlFor="select-all" className="text-sm font-normal">
+                Select All
+              </Label>
+            </div>
+          </CardTitle>
+          <CardDescription>All items in this sale</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Invoice</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead className="text-right">Paid</TableHead>
-                  <TableHead className="text-right">Remaining</TableHead>
+                  <TableHead className="w-12">Select</TableHead>
+                  <TableHead>Product Name</TableHead>
+                  <TableHead className="text-right">Quantity</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {customer.transactions
-                  .filter((t) => {
-                    const sale = getSaleDetails(t.saleId)
-                    return sale !== undefined
-                  })
-                  .map((transaction, index) => {
-                    const sale = getSaleDetails(transaction.saleId)!
+                {sale.saleItems.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
+                      No items found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  sale.saleItems.map((item) => {
+                    const isSelected = selectedItems.has(item.productId)
+
                     return (
-                      <TableRow
-                        key={index}
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => router.push(`/dashboard/sales/${transaction.saleId}`)}
-                      >
-                        <TableCell>{formatDate(sale.createdAt)}</TableCell>
-                        <TableCell>#{sale.id.slice(-6)}</TableCell>
+                      <TableRow key={item.productId} className={isSelected ? "bg-muted/50" : ""}>
                         <TableCell>
-                          <div className="flex flex-col">
-                            {sale.items.slice(0, 2).map((item, idx) => (
-                              <span key={idx} className="text-sm">
-                                {item.quantity}x {item.productName}
-                              </span>
-                            ))}
-                            {sale.items.length > 2 && (
-                              <span className="text-xs text-muted-foreground">+{sale.items.length - 2} more items</span>
-                            )}
-                          </div>
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={(checked) => handleItemSelection(item.productId, checked as boolean)}
+                          />
                         </TableCell>
-                        <TableCell className="text-right font-medium">{formatCurrency(sale.total)}</TableCell>
-                        <TableCell className="text-right text-muted-foreground">
-                          {formatCurrency(sale.paymentAmount)}
-                        </TableCell>
-                        <TableCell className="text-right font-medium text-destructive">
-                          {formatCurrency(sale.total - sale.paymentAmount)}
+                        <TableCell className="font-medium">{item.productName}</TableCell>
+                        <TableCell className="text-right">{item.quantitySold}</TableCell>
+                        <TableCell className="text-right font-medium">{formatCurrency(item.totalPrice)}</TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openPaymentDialog("single", item.productId)}
+                          >
+                            <CreditCard className="h-4 w-4 mr-1" />
+                            Pay
+                          </Button>
                         </TableCell>
                       </TableRow>
                     )
-                  })}
+                  })
+                )}
               </TableBody>
             </Table>
           </div>
         </CardContent>
       </Card>
+
+      {/* Payment Dialog */}
+      <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Record Payment</DialogTitle>
+            <DialogDescription>
+              {paymentType === "single" && "Enter payment for the selected item"}
+              {paymentType === "selected" && `Enter payment for ${selectedItems.size} selected item(s)`}
+              {paymentType === "all" && "Enter payment for all items in this sale"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="amount">Payment Amount (PKR)</Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="Enter amount"
+                value={paymentAmount}
+                onChange={(e) => setPaymentAmount(e.target.value)}
+              />
+              <p className="text-sm text-muted-foreground">
+                {paymentType === "single" && singleItemId && (
+                  <>
+                    Item total:{" "}
+                    {formatCurrency(sale.saleItems.find((item) => item.productId === singleItemId)?.totalPrice || 0)}
+                  </>
+                )}
+                {paymentType === "selected" && <>Selected items total: {formatCurrency(selectedTotal)}</>}
+                {paymentType === "all" && <>Total outstanding: {formatCurrency(sale.totalAmountSummary)}</>}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handlePaymentSubmit} disabled={!paymentAmount || Number.parseFloat(paymentAmount) <= 0}>
+              Record Payment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
