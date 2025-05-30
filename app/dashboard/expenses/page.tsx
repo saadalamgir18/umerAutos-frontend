@@ -110,8 +110,7 @@ export default function ExpensesPage() {
       const res = await fetch(url)
       const json = await res.json()
 
-      if (json?.isSuccess) {
-        const expensesData = json.data.items || json.data
+        const expensesData = json.data || json.data
         setExpenses(expensesData)
         setFilteredExpenses(expensesData)
 
@@ -125,9 +124,7 @@ export default function ExpensesPage() {
           setTotalItems(expensesData.length)
           setTotalPages(Math.ceil(expensesData.length / itemsPerPage))
         }
-      } else {
-        throw new Error(json?.message || "Failed to fetch expenses")
-      }
+      
     } catch (err) {
       console.error("Failed to fetch expenses:", err)
       toast({
@@ -274,7 +271,6 @@ export default function ExpensesPage() {
 
       const data = await response.json()
 
-      if (data.isSuccess) {
         // Add the new expense to the state
         const createdExpense = {
           ...newExpense,
@@ -298,9 +294,7 @@ export default function ExpensesPage() {
 
         // Refresh expenses to update pagination
         fetchExpenses()
-      } else {
-        throw new Error(data.message || "Failed to add expense")
-      }
+     
     } catch (error) {
       console.error("Error adding expense:", error)
       toast({

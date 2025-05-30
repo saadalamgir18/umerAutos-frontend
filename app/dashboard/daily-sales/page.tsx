@@ -33,8 +33,6 @@ interface DailySaleItem {
 
 interface ApiResponse {
   data: DailySaleItem[]
-  isSuccess: boolean
-  message: string
   pagination?: {
     totalItems: number
     totalPages: number
@@ -54,7 +52,7 @@ export default function DailySalesPage() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
   const [totalPages, setTotalPages] = useState(1)
   const [totalDailySales, setTotalDailySales] = useState(0)
 
@@ -77,9 +75,12 @@ export default function DailySalesPage() {
 
       const json: ApiResponse = await res.json()
 
-      if (json?.isSuccess && Array.isArray(json.data)) {
         const itemsArray = json.data
-        console.log(itemsArray)
+
+        if(itemsArray?.length> 0){
+
+       
+        console.log("itemsArray: " , itemsArray)
 
         // Calculate totals
         const totalItemsSold = itemsArray.reduce((sum: number, item: DailySaleItem) => sum + item.quantitySold, 0)
@@ -102,9 +103,8 @@ export default function DailySalesPage() {
           setTotalDailySales(itemsArray.length)
           setTotalPages(Math.ceil(itemsArray.length / itemsPerPage))
         }
-      } else {
-        throw new Error(json.message || "Failed to fetch daily sales")
       }
+       
     } catch (err) {
       console.error("Failed to fetch today's sales:", err)
       setError(err instanceof Error ? err.message : "An unknown error occurred")

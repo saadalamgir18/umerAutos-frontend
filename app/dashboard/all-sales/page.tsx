@@ -86,7 +86,6 @@ export default function DailySalesPage() {
       const res = await fetch(url)
       const json = await res.json()
 
-      if (json?.isSuccess) {
         // Assuming the API returns data in this format
         // { data: [...items], meta: { total: 100, page: 1, limit: 10, totalPages: 10 } }
         const itemsArray = json.data || []
@@ -100,13 +99,7 @@ export default function DailySalesPage() {
         setTotalItems(meta.totalItems || itemsArray.length)
         setTotalPages(meta.totalPages || Math.ceil(itemsArray.length / limit))
 
-      } else {
-        toast({
-          title: "Error",
-          description: json?.message || "Failed to fetch sales data",
-          variant: "destructive",
-        })
-      }
+    
     } catch (err) {
       console.error("Failed to fetch sales:", err)
       toast({

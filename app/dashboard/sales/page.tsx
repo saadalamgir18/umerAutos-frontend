@@ -39,9 +39,6 @@ interface SaleSummary {
 
 interface ApiResponse {
   data: SaleSummary[]
-  message: string
-  status: number
-  isSuccess: boolean
   pagination?: {
     totalItems: number
     totalPages: number
@@ -60,7 +57,7 @@ export default function SalesPage() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
   const [totalItems, setTotalItems] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
 
@@ -84,7 +81,6 @@ export default function SalesPage() {
 
       const data: ApiResponse = await response.json()
 
-      if (data.isSuccess) {
         // Add a default createdAt if it doesn't exist in the API response
         const salesWithDefaults = data.data.map((sale) => ({
           ...sale,
@@ -103,9 +99,7 @@ export default function SalesPage() {
           setTotalItems(salesWithDefaults.length)
           setTotalPages(Math.ceil(salesWithDefaults.length / itemsPerPage))
         }
-      } else {
-        throw new Error(data.message || "Failed to fetch sales")
-      }
+      
     } catch (err) {
       console.error("Error fetching sales:", err)
       setError(err instanceof Error ? err.message : "An unknown error occurred")
@@ -336,21 +330,7 @@ export default function SalesPage() {
                       Showing {Math.min((currentPage - 1) * itemsPerPage + 1, totalItems)} to{" "}
                       {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} entries
                     </p>
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm text-muted-foreground">Show</span>
-                      <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
-                        <SelectTrigger className="h-8 w-[70px]">
-                          <SelectValue placeholder={itemsPerPage.toString()} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="5">5</SelectItem>
-                          <SelectItem value="10">10</SelectItem>
-                          <SelectItem value="20">20</SelectItem>
-                          <SelectItem value="50">50</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <span className="text-sm text-muted-foreground">per page</span>
-                    </div>
+                    
                   </div>
 
                   <Pagination>
@@ -387,6 +367,21 @@ export default function SalesPage() {
                       </PaginationItem>
                     </PaginationContent>
                   </Pagination>
+                  <div className="flex items-center gap-1">
+                      <span className="text-sm text-muted-foreground">Show</span>
+                      <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
+                        <SelectTrigger className="h-8 w-[70px]">
+                          <SelectValue placeholder={itemsPerPage.toString()} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="5">5</SelectItem>
+                          <SelectItem value="10">10</SelectItem>
+                          <SelectItem value="20">20</SelectItem>
+                          <SelectItem value="50">50</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <span className="text-sm text-muted-foreground">per page</span>
+                    </div>
                 </div>
               )}
             </>

@@ -43,7 +43,7 @@ export default function SuppliersPage() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(6)
+  const [itemsPerPage, setItemsPerPage] = useState(3)
   const [totalItems, setTotalItems] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
 
@@ -73,9 +73,9 @@ export default function SuppliersPage() {
         throw new Error("Failed to fetch suppliers")
       }
       const data = await response.json()
-      if (data.isSuccess) {
-        setSuppliers(data.data.items || data.data)
-        setFilteredSuppliers(data.data.items || data.data)
+      if (data.data) {
+        setSuppliers(data.data || data.data)
+        setFilteredSuppliers(data.data || data.data)
 
         // Update pagination information if available in the response
         if (data.pagination) {

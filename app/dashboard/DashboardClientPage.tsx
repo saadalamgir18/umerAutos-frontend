@@ -39,21 +39,18 @@ export default function DashboardClientPage() {
         const salesData = await monthlySales.json()
         const todaySalesValue = await todaySales.json()
 
-        if (todayExpData?.isSuccess) {
-          setTodayExpenses(todayExpData.data)
-        }
+          setTodayExpenses(todayExpData)
 
-        if (monthlyExpData?.isSuccess) {
-          setMonthlyExpenses(monthlyExpData.data)
-        }
+          setMonthlyExpenses(monthlyExpData)
+      
 
-        if (salesData?.isSuccess && salesData.data) {
+        if (salesData) {
 
 
           setTodaySales([])
           setMonthlySales([])
-          setTodaySalesRevenue(todaySalesValue.data)
-          setMonthlySalesRevenue(salesData.data)
+          setTodaySalesRevenue(todaySalesValue)
+          setMonthlySalesRevenue(salesData)
         }
       } catch (err) {
         console.error("Failed to fetch data", err)

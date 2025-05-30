@@ -218,6 +218,7 @@ export default function ProductsPage() {
       console.log("Fetching products from:", url)
 
       const response = await fetch(url)
+      
 
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`)
@@ -225,9 +226,11 @@ export default function ProductsPage() {
 
       const data = await response.json()
 
-      if (data.isSuccess) {
-        setProducts(data.data.items || data.data)
-        setFilteredProducts(data.data.items || data.data)
+      console.log(data);
+
+
+        setProducts(data.data)
+        setFilteredProducts(data.data)
 
         // Update pagination information if available in the response
         if (data.pagination) {
@@ -239,9 +242,7 @@ export default function ProductsPage() {
           setTotalItems(data.data.length)
           setTotalPages(Math.ceil(data.data.length / itemsPerPage))
         }
-      } else {
-        throw new Error(data.message || "Failed to fetch products")
-      }
+      
     } catch (error) {
       console.error("Failed to fetch products:", error)
       // If API fails, use mock data as fallback

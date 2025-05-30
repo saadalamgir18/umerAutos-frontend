@@ -368,7 +368,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <MobileNavigation items={filteredNavItems} pathname={pathname} user={user} logout={logout} />
         <div className="flex items-center">
           <span className="font-bold text-lg">
-            Moto<span className="text-primary">Parts</span>
+            Gear<span className="text-primary">Stock</span>
           </span>
         </div>
         <div className="ml-auto flex items-center gap-2">
@@ -417,7 +417,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex h-16 items-center gap-2 border-b px-4">
             {!isSidebarCollapsed && (
               <span className="font-bold text-lg">
-                Moto<span className="text-primary">Parts</span>
+                Gear<span className="text-primary">Stock</span>
               </span>
             )}
             <Button

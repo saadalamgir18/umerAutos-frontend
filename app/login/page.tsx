@@ -41,7 +41,7 @@ export default function LoginPage() {
             <ShoppingBag className="h-10 w-10 text-primary" />
           </div>
           <h1 className="text-3xl font-bold">
-            Moto<span className="text-primary">Parts</span>
+            Gear<span className="text-primary">Stock</span>
           </h1>
           <p className="text-muted-foreground mt-1">Motorcycle Parts Inventory Management</p>
         </div>
