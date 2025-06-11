@@ -96,23 +96,23 @@ export default function EditProductPage({ params }: Props) {
         const brandsResponse = await fetch("http://localhost:8083/api/v1/brands", { credentials: "include"})
         if (!brandsResponse.ok) throw new Error("Failed to fetch brands")
         const brandsData = await brandsResponse.json()
-        setBrands(brandsData.data)
+        setBrands(brandsData)
 
         // Fetch compatible models
         const modelsResponse = await fetch("http://localhost:8083/api/v1/compatible-models", { credentials: "include"})
         if (!modelsResponse.ok) throw new Error("Failed to fetch compatible models")
         const modelsData = await modelsResponse.json()
-        setCompatibleModels(modelsData.data)
+        setCompatibleModels(modelsData)
 
         // Fetch shelf codes
         const shelfCodesResponse = await fetch("http://localhost:8083/api/v1/shelf", { credentials: "include"})
         if (!shelfCodesResponse.ok) throw new Error("Failed to fetch shelf codes")
         const shelfCodesData = await shelfCodesResponse.json()
-        setShelfCodes(shelfCodesData.data)
+        setShelfCodes(shelfCodesData)
 
         // Extract model IDs from the product's compatible models
         let compatibleModelsIds: string[] = []
-        const product = productData.data
+        const product = productData
         if (product.compatibleModels && Array.isArray(product.compatibleModelsIds)) {
           compatibleModelsIds = product.compatibleModelsIds.map((model: any) => model.id || model)
         }
@@ -280,7 +280,7 @@ export default function EditProductPage({ params }: Props) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {brands.map((brand) => (
+                          {brands?.map((brand) => (
                             <SelectItem key={brand.id} value={brand.id}>
                               {brand.name}
                             </SelectItem>

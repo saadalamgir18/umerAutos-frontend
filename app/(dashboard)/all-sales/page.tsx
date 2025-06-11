@@ -271,11 +271,8 @@ export default function DailySalesPage() {
       {/* Summary Cards */}
 
       {/* Sales Table */}
-      <Card className="shadow-sm ">
-        <CardHeader className="pb-3">
-          <CardTitle>Items Sold</CardTitle>
-          <CardDescription>Detailed breakdown of all items sold</CardDescription>
-        </CardHeader>
+      <Card className="shadow-sm border-none">
+    
         <CardContent className="flex flex-col h-[600px]">
           <div className="rounded-md border flex-grow overflow-hidden flex flex-col">
             <div className="overflow-auto flex-grow">

@@ -19,6 +19,7 @@ import {
   BellRing,
   Calendar,
   BookOpen,
+  Settings,
 } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -35,9 +36,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { ToastProvider } from "@/components/toast-provider"
 
-// Navigation items with clean URLs - Dashboard points to root "/"
+// Navigation items with updated structure
 const navItems = [
   {
     title: "Dashboard",
@@ -48,6 +48,11 @@ const navItems = [
     title: "Products",
     href: "/products",
     icon: <Package className="h-5 w-5" />,
+  },
+  {
+    title: "Low Stock",
+    href: "/low-stock",
+    icon: <AlertTriangle className="h-5 w-5" />,
   },
   {
     title: "Sales",
@@ -65,8 +70,8 @@ const navItems = [
     icon: <Calendar className="h-5 w-5" />,
   },
   {
-    title: "Khata",
-    href: "/khata",
+    title: "Debtors",
+    href: "/debtors",
     icon: <BookOpen className="h-5 w-5" />,
   },
   {
@@ -98,7 +103,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const lowStockCount = useMemo(() => {
     if (!products || products.length === 0) return 0
-    const lowStock = products.filter((p) => p.quantityInStock > 0 && p.quantityInStock <= 5).length
+    const lowStock = products.filter((p) => p.quantityInStock > 0 && p.quantityInStock <= 10).length
     const outOfStock = products.filter((p) => p.quantityInStock === 0).length
     return lowStock + outOfStock
   }, [products])
@@ -124,6 +129,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [])
 
   return (
+  <TooltipProvider>
+
     <div className="flex min-h-screen flex-col bg-background">
       {/* Mobile Header */}
       <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur px-4 md:hidden">
@@ -137,7 +144,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex h-full flex-col">
               <div className="flex items-center gap-2 border-b p-4">
                 <Avatar>
-                  <AvatarFallback className="bg-primary text-primary-foreground">
+                  <AvatarFallback className="bg-primary text-5xl text-primary-foreground">
                     {getUserInitials(user?.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -160,6 +167,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       >
                         {item.icon}
                         {item.title}
+                        {item.title === "Low Stock" && lowStockCount > 0 && (
+                          <Badge variant="destructive" className="ml-auto">
+                            {lowStockCount}
+                          </Badge>
+                        )}
                       </Link>
                     </li>
                   ))}
@@ -271,7 +283,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             }`}
                           >
                             {item.icon}
-                            {!isSidebarCollapsed && <span>{item.title}</span>}
+                            {!isSidebarCollapsed && (
+                              <>
+                                <span>{item.title}</span>
+                                {item.title === "Low Stock" && lowStockCount > 0 && (
+                                  <Badge variant="destructive" className="ml-auto">
+                                    {lowStockCount}
+                                  </Badge>
+                                )}
+                              </>
+                            )}
+                            {isSidebarCollapsed && item.title === "Low Stock" && lowStockCount > 0 && (
+                              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] text-destructive-foreground">
+                                {lowStockCount}
+                              </span>
+                            )}
                           </Link>
                         </TooltipTrigger>
                         {isSidebarCollapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
@@ -331,7 +357,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {lowStockCount > 0 && (
                 <Button
                   variant="outline"
-                  onClick={() => router.push("/products/low-stock")}
+                  onClick={() => router.push("/low-stock")}
                   className="flex items-center gap-2 group"
                 >
                   <AlertTriangle className="h-4 w-4 text-amber-500 group-hover:animate-pulse" />
@@ -345,8 +371,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <Avatar className="h-8 w-8 ring-2 ring-primary/10 transition-all hover:ring-primary/30">
-                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                        {getUserInitials(user?.name)}
+                      <AvatarFallback className="bg-primary text-xl text-primary-foreground">
+                        <Settings />
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -365,8 +391,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="container py-6 px-3">{children}</div>
         </main>
       </div>
-
-      <ToastProvider />
     </div>
+    </TooltipProvider>
+
   )
 }

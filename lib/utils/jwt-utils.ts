@@ -48,7 +48,7 @@ export function extractUserFromToken(token: string) {
 
   return {
     id: payload.sub || payload.userName,
-    name: payload.userName || payload.sub,
+    name: payload.userName.split("@")[0] || payload.sub,
     email: payload.sub || payload.userName,
     role: role,
     exp: payload.exp,

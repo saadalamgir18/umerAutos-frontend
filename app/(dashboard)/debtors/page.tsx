@@ -179,19 +179,13 @@ export default function KhataPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Khata (Credit Ledger)</h1>
-        <Button onClick={() => router.push("/khata/add")}>
-          <Plus className="mr-2 h-4 w-4" /> Add Customer
-        </Button>
-      </div>
+  
 
       <Card>
-        <CardHeader>
-          <CardTitle>Unpaid Sales Records</CardTitle>
-          <CardDescription>Manage sales with outstanding balances (udhar)</CardDescription>
-        </CardHeader>
-        <CardContent>
+        {/* <CardHeader>
+   
+        </CardHeader> */}
+        <CardContent className="pt-3">
           <div className="flex items-center space-x-2 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -266,7 +260,7 @@ export default function KhataPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => router.push(`/khata/${sale.id}`)}
+                              onClick={() => router.push(`/debtors/${sale.id}`)}
                             >
                               <ArrowRight className="h-4 w-4" />
                             </Button>

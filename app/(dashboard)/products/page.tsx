@@ -372,10 +372,7 @@ export default function ProductsPage() {
       </div>
 
       <Card className="card-hover">
-        <CardHeader className="pb-3">
-          <CardTitle>Product Inventory</CardTitle>
-          <CardDescription>Manage your motorcycle spare parts inventory</CardDescription>
-        </CardHeader>
+       
         <CardContent className="flex flex-col h-[600px]">
           <div className="flex flex-col space-y-4 flex-grow overflow-hidden">
             <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-x-2 md:space-y-0 overflow-auto flex-grow">

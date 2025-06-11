@@ -28,10 +28,10 @@ export default function DashboardClientPage() {
     async function fetchData() {
       try {
         const [todayExpRes, monthlyExpRes, monthlySales, todaySales] = await Promise.all([
-          fetch("http://localhost:8083/api/v1/expenses/today"),
-          fetch("http://localhost:8083/api/v1/expenses/monthly"),
-          fetch("http://localhost:8083/api/v1/sales/monthly-revenue"),
-          fetch("http://localhost:8083/api/v1/today-sale/totalSale"),
+          fetch("http://localhost:8083/api/v1/expenses/today", {credentials: "include"}),
+          fetch("http://localhost:8083/api/v1/expenses/monthly", {credentials: "include"}),
+          fetch("http://localhost:8083/api/v1/sales/monthly-revenue", {credentials: "include"}),
+          fetch("http://localhost:8083/api/v1/today-sale/totalSale", {credentials: "include"}),
         ])
 
         const todayExpData = await todayExpRes.json()

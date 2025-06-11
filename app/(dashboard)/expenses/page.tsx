@@ -397,16 +397,13 @@ export default function ExpensesPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Operational Expenses</h1>
-      </div>
+     
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2 space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Expense History</CardTitle>
-              <CardDescription>View and manage all operational expenses</CardDescription>
+         
             </CardHeader>
             <CardContent className="flex flex-col h-[600px]">
               <div className="flex flex-col space-y-4 flex-grow overflow-hidden">

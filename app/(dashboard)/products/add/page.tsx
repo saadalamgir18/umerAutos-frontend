@@ -91,19 +91,19 @@ export default function AddProductPage() {
         const brandsResponse = await fetch("http://localhost:8083/api/v1/brands", { credentials: "include"})
         if (!brandsResponse.ok) throw new Error("Failed to fetch brands")
         const brandsData = await brandsResponse.json()
-        setBrands(brandsData.data)
+        setBrands(brandsData)
 
         // Fetch compatible models
         const modelsResponse = await fetch("http://localhost:8083/api/v1/compatible-models", { credentials: "include"})
         if (!modelsResponse.ok) throw new Error("Failed to fetch compatible models")
         const modelsData = await modelsResponse.json()
-        setCompatibleModels(modelsData.data)
+        setCompatibleModels(modelsData)
 
         // Fetch shelf codes
         const shelfCodesResponse = await fetch("http://localhost:8083/api/v1/shelf", { credentials: "include"})
         if (!shelfCodesResponse.ok) throw new Error("Failed to fetch shelf codes")
         const shelfCodesData = await shelfCodesResponse.json()
-        setShelfCodes(shelfCodesData.data)
+        setShelfCodes(shelfCodesData)
       } catch (error) {
         console.error("Error fetching related data:", error)
         toastUtils.update(
@@ -255,7 +255,7 @@ export default function AddProductPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {brands.map((brand) => (
+                          {brands?.map((brand) => (
                             <SelectItem key={brand.id} value={brand.id}>
                               {brand.name}
                             </SelectItem>

@@ -235,11 +235,8 @@ export default function SalesPage() {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Sales History</CardTitle>
-          <CardDescription>View and manage all sales transactions</CardDescription>
-        </CardHeader>
+      <Card className="border-none">
+   
         <CardContent>
           {loading ? (
             <div className="flex justify-center items-center py-8">

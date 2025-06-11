@@ -59,7 +59,6 @@ interface SaleRequest {
 export default function NewSalePage() {
   const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
-  const { toast } = useToast()
   const { currentSale } = useSelector((state: RootState) => state.sales)
   const [searchTerm, setSearchTerm] = useState("")
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])

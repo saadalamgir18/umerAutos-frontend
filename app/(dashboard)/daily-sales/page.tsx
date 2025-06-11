@@ -188,10 +188,7 @@ export default function DailySalesPage() {
         </Card>
 
         <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Items Sold</CardTitle>
-            <Package className="h-4 w-4 text-blue-500" />
-          </CardHeader>
+        
           <CardContent>
             <div className="text-2xl font-bold">{totalItems}</div>
             <div className="text-sm text-muted-foreground mt-1">{dailySales.length} different products</div>
@@ -212,10 +209,7 @@ export default function DailySalesPage() {
 
       {/* Sales Table */}
       <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle>Items Sold Today</CardTitle>
-          <CardDescription>Detailed breakdown of all items sold today</CardDescription>
-        </CardHeader>
+       
         <CardContent>
           {loading ? (
             <div className="flex justify-center items-center py-8">
