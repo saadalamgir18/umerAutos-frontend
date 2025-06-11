@@ -160,6 +160,7 @@ export default function ProductsPage() {
     try {
       const response = await fetch(`http://localhost:8083/api/v1/products/${productId}`, {
         method: "DELETE",
+         credentials: "include"
       })
 
       if (!response.ok) {
@@ -217,7 +218,7 @@ export default function ProductsPage() {
 
       console.log("Fetching products from:", url)
 
-      const response = await fetch(url)
+      const response = await fetch(url, { credentials: "include"})
       
 
       if (!response.ok) {

@@ -83,7 +83,7 @@ export default function DailySalesPage() {
         url += `?${params.toString()}`
       }
 
-      const res = await fetch(url)
+      const res = await fetch(url, { credentials: "include"})
       const json = await res.json()
 
         // Assuming the API returns data in this format
@@ -193,6 +193,7 @@ export default function DailySalesPage() {
     try {
       const response = await fetch(`http://localhost:8083/api/v1/sales/${saleToDelete}`, {
         method: "DELETE",
+        credentials: "include"
       })
 
       if (!response.ok) {

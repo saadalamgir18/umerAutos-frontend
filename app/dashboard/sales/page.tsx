@@ -73,6 +73,7 @@ export default function SalesPage() {
       // Add pagination parameters to the API request
       const response = await fetch(
         `http://localhost:8083/api/v1/sales-summary?page=${currentPage}&limit=${itemsPerPage}&sortBy=${sortField}&sortDirection=${sortDirection}`,
+        { credentials: "include"}
       )
 
       if (!response.ok) {

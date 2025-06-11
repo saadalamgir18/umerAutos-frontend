@@ -24,7 +24,7 @@ export default function LoginPage() {
     setIsLoggingIn(true)
 
     try {
-      const success = await login("admin@example.com", "password")
+      const success = await login(email, password)
       if (success) {
         router.push("/dashboard")
       }
@@ -66,11 +66,11 @@ export default function LoginPage() {
                 </Label>
                 <Input
                   id="email"
-                  type="text"
-                  placeholder="name@example.com"
+                  type="email"
+                  placeholder="saad1@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                
+                  required
                   className="border-muted-foreground/20"
                   autoComplete="email"
                 />
@@ -88,25 +88,23 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   type="password"
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                   className="border-muted-foreground/20"
                   autoComplete="current-password"
                 />
               </div>
               <div className="bg-muted/50 p-3 rounded-lg border">
                 <p className="text-sm font-medium">Demo Credentials:</p>
-                <div className="grid grid-cols-2 gap-2 mt-1">
-                  <div className="text-sm">
-                    <p className="font-medium text-primary/90">Admin</p>
-                    <p>admin@example.com</p>
-                    <p>password</p>
-                  </div>
-                  <div className="text-sm">
-                    <p className="font-medium text-primary/90">Staff</p>
-                    <p>staff@example.com</p>
-                    <p>password</p>
-                  </div>
+                <div className="mt-1 text-sm">
+                  <p>
+                    <span className="font-medium text-primary/90">Email:</span> saad1@example.com
+                  </p>
+                  <p>
+                    <span className="font-medium text-primary/90">Password:</span> 12345
+                  </p>
                 </div>
               </div>
             </CardContent>

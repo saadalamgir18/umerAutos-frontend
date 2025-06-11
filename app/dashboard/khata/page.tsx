@@ -75,6 +75,7 @@ export default function KhataPage() {
     try {
       const response = await fetch(
         `http://localhost:8083/api/v1/sales-summary?page=${currentPage}&limit=${itemsPerPage}&status=unpaid`,
+        { credentials: "include"}
       )
 
       if (!response.ok) {

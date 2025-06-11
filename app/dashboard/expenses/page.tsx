@@ -107,7 +107,7 @@ export default function ExpensesPage() {
       // Append parameters to URL
       url += `?${params.toString()}`
 
-      const res = await fetch(url)
+      const res = await fetch(url, { credentials: "include"})
       const json = await res.json()
 
         const expensesData = json.data || json.data
@@ -263,6 +263,7 @@ export default function ExpensesPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(newExpense),
+        credentials: "include"
       })
 
       if (!response.ok) {
@@ -318,6 +319,7 @@ export default function ExpensesPage() {
     try {
       const response = await fetch(`http://localhost:8083/api/v1/expenses/${expenseToDelete}`, {
         method: "DELETE",
+         credentials: "include"
       })
 
       if (!response.ok) {

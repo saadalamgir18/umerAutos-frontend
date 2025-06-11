@@ -51,7 +51,7 @@ export default function SaleDetailPage({ params }: { params: { id: string } }) {
     setError(null)
 
     try {
-      const response = await fetch(`http://localhost:8083/api/v1/sales-summary/${saleId}`)
+      const response = await fetch(`http://localhost:8083/api/v1/sales-summary/${saleId}`, { credentials: "include"})
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -86,6 +86,7 @@ export default function SaleDetailPage({ params }: { params: { id: string } }) {
         body: JSON.stringify({
           paymentStatus: "PAID",
         }),
+         credentials: "include"
       })
 
       if (!response.ok) {
@@ -123,6 +124,7 @@ export default function SaleDetailPage({ params }: { params: { id: string } }) {
         body: JSON.stringify({
           productId: productId,
         }),
+        credentials: "include"
       })
 
       if (!response.ok) {

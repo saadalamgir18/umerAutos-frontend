@@ -105,7 +105,7 @@ export default function NewSalePage() {
     setError(null)
     try {
       const url = `http://localhost:8083/api/v1/products?name=${encodeURIComponent(search)}`
-      const response = await fetch(url)
+      const response = await fetch(url, { credentials: "include"})
 
       if (!response.ok) {
         throw new Error(`Error fetching products: ${response.status}`)
@@ -218,6 +218,7 @@ export default function NewSalePage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(saleRequest),
+         credentials: "include"
       })
 
       if (!response.ok) {

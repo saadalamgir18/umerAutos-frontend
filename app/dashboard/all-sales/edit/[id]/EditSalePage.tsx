@@ -69,7 +69,7 @@ export default function EditSalePage({ id }: Props) {
             setApiErrors(null)
 
             try {
-                const response = await fetch(`http://localhost:8083/api/v1/sales/${id}`)
+                const response = await fetch(`http://localhost:8083/api/v1/sales/${id}`, { credentials: "include"})
 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch sale: ${response.status}`)

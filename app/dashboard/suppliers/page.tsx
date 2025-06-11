@@ -68,7 +68,7 @@ export default function SuppliersPage() {
       // Append parameters to URL
       url += `?${params.toString()}`
 
-      const response = await fetch(url)
+      const response = await fetch(url, { credentials: "include"})
       if (!response.ok) {
         throw new Error("Failed to fetch suppliers")
       }

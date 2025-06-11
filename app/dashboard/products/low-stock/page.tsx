@@ -42,7 +42,7 @@ export default function LowStockPage() {
     
           console.log("Fetching products from:", url)
     
-          const response = await fetch(url)
+          const response = await fetch(url, { credentials: "include"})
     
           if (!response.ok) {
             throw new Error(`API error: ${response.status}`)

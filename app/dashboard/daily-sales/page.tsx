@@ -67,7 +67,7 @@ export default function DailySalesPage() {
     setError(null)
 
     try {
-      const res = await fetch(`http://localhost:8083/api/v1/today-sales?page=${currentPage}&limit=${itemsPerPage}`)
+      const res = await fetch(`http://localhost:8083/api/v1/today-sales?page=${currentPage}&limit=${itemsPerPage}`, { credentials: "include"})
 
       if (!res.ok) {
         throw new Error(`Error fetching daily sales: ${res.status}`)
@@ -79,7 +79,7 @@ export default function DailySalesPage() {
 
         
 
-        if(itemsArray.length> 0){
+        if(itemsArray.length > 0){
 
        
 
@@ -243,7 +243,6 @@ export default function DailySalesPage() {
                   <TableBody>
                     {dailySales.length === 0 ? (
                       <TableRow>
-                                              {JSON.stringify(dailySales)}
 
                         <TableCell colSpan={5} className="text-center py-8">
                           <div className="flex flex-col items-center justify-center text-muted-foreground">

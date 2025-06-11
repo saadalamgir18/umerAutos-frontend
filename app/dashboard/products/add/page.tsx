@@ -88,19 +88,19 @@ export default function AddProductPage() {
 
       try {
         // Fetch brands
-        const brandsResponse = await fetch("http://localhost:8083/api/v1/brands")
+        const brandsResponse = await fetch("http://localhost:8083/api/v1/brands", { credentials: "include"})
         if (!brandsResponse.ok) throw new Error("Failed to fetch brands")
         const brandsData = await brandsResponse.json()
         setBrands(brandsData.data)
 
         // Fetch compatible models
-        const modelsResponse = await fetch("http://localhost:8083/api/v1/compatible-models")
+        const modelsResponse = await fetch("http://localhost:8083/api/v1/compatible-models", { credentials: "include"})
         if (!modelsResponse.ok) throw new Error("Failed to fetch compatible models")
         const modelsData = await modelsResponse.json()
         setCompatibleModels(modelsData.data)
 
         // Fetch shelf codes
-        const shelfCodesResponse = await fetch("http://localhost:8083/api/v1/shelf")
+        const shelfCodesResponse = await fetch("http://localhost:8083/api/v1/shelf", { credentials: "include"})
         if (!shelfCodesResponse.ok) throw new Error("Failed to fetch shelf codes")
         const shelfCodesData = await shelfCodesResponse.json()
         setShelfCodes(shelfCodesData.data)
@@ -145,6 +145,7 @@ export default function AddProductPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(productData),
+        credentials: "include"
       })
 
       const responseData = await response.json()
