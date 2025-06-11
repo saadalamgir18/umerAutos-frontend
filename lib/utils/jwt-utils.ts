@@ -1,58 +1,54 @@
-// Utility functions for JWT handling
+// Utility function to get cookie value by name
 export function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null
 
   const value = `; ${document.cookie}`
   const parts = value.split(`; ${name}=`)
   if (parts.length === 2) {
-    return parts.pop()?.split(";").shift() || null
+    const cookieValue = parts.pop()?.split(";").shift()
+    return cookieValue || null
   }
   return null
 }
 
+// Utility function to parse JWT token
 export function parseJWT(token: string) {
   try {
-    // JWT has 3 parts separated by dots: header.payload.signature
-    const parts = token.split(".")
-    if (parts.length !== 3) {
-      throw new Error("Invalid JWT format")
-    }
-
-    // Decode the payload (second part)
-    const payload = parts[1]
-
-    // Add padding if needed for base64 decoding
-    const paddedPayload = payload + "=".repeat((4 - (payload.length % 4)) % 4)
-
-    // Decode base64
-    const decodedPayload = atob(paddedPayload)
-
-    // Parse JSON
-    return JSON.parse(decodedPayload)
+    const base64Url = token.split(".")[1]
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/")
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(""),
+    )
+    return JSON.parse(jsonPayload)
   } catch (error) {
     console.error("Error parsing JWT:", error)
     return null
   }
 }
 
+// Utility function to check if token is expired
 export function isTokenExpired(token: string): boolean {
   const payload = parseJWT(token)
   if (!payload || !payload.exp) return true
 
-  // exp is in seconds, Date.now() is in milliseconds
-  return payload.exp * 1000 < Date.now()
+  const currentTime = Math.floor(Date.now() / 1000)
+  return payload.exp < currentTime
 }
 
+// Utility function to extract user data from token
 export function extractUserFromToken(token: string) {
   const payload = parseJWT(token)
   if (!payload) return null
 
-  // Extract role from the array and remove ROLE_ prefix
+  // Extract role from the role array and remove "ROLE_" prefix
   const role = payload.role && payload.role.length > 0 ? payload.role[0].replace("ROLE_", "").toLowerCase() : "user"
 
   return {
     id: payload.sub || payload.userName,
-    name: payload.userName.split("@")[0] || payload.sub,
+    name: payload.userName || payload.sub,
     email: payload.sub || payload.userName,
     role: role,
     exp: payload.exp,
