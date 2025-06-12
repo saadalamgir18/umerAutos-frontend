@@ -227,7 +227,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
   const handlePayAll = async () => {
     setPayingAll(true)
     try {
-      const response = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}/mark-paid`, {
+      const response = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
