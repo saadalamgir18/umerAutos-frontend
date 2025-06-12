@@ -57,7 +57,7 @@ export default function SalesPage() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(5)
+  const [itemsPerPage, setItemsPerPage] = useState(7)
   const [totalItems, setTotalItems] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
 
@@ -372,10 +372,10 @@ export default function SalesPage() {
                           <SelectValue placeholder={itemsPerPage.toString()} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="5">5</SelectItem>
-                          <SelectItem value="10">10</SelectItem>
-                          <SelectItem value="20">20</SelectItem>
-                          <SelectItem value="50">50</SelectItem>
+                          <SelectItem value="7">7</SelectItem>
+                          <SelectItem value="14">14</SelectItem>
+                          <SelectItem value="21">21</SelectItem>
+                          <SelectItem value="28">28</SelectItem>
                         </SelectContent>
                       </Select>
                       <span className="text-sm text-muted-foreground">per page</span>

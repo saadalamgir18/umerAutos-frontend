@@ -6,12 +6,16 @@ import { ShoppingCart, DollarSign, TrendingUp, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useAuth } from "@/lib/hooks/use-auth"
+import { useAuth } from "@/lib/contexts/auth-context"
 
 export default function DashboardClientPage() {
   const [mounted, setMounted] = useState(false)
   const { user } = useAuth()
-  const isAdmin = user?.role === "admin"
+  const isAdmin = user?.role[0] === "ROLE_ADMIN"
+  console.log(user);
+  
+  console.log("isAdmin: ", isAdmin);
+  
 
   const [todayExpenses, setTodayExpenses] = useState<number>(0)
   const [monthlyExpenses, setMonthlyExpenses] = useState<number>(0)

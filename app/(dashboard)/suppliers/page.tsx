@@ -7,7 +7,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Edit, Trash2, Search, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/hooks/use-auth"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Pagination,
@@ -29,6 +28,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { toastUtils } from "@/lib/utils/toast-utils"
+import { useAuth } from "@/lib/contexts/auth-context"
 
 export default function SuppliersPage() {
   const router = useRouter()
@@ -314,7 +314,7 @@ export default function SuppliersPage() {
                                 <Edit className="h-4 w-4" />
                                 <span className="sr-only">Edit</span>
                               </Button>
-                              {user?.role === "admin" && (
+                              {user?.role[0] === "ADMIN" && (
                                   <Button
                                     variant="ghost"
                                     size="icon"

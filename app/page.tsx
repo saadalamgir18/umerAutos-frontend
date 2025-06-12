@@ -2,8 +2,8 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/hooks/use-auth"
 import DashboardClientPage from "../components/DashboardClientPage"
+import { useAuth } from "@/lib/contexts/auth-context"
 
 export default function HomePage() {
   const { isAuthenticated, isInitializing } = useAuth()

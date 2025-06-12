@@ -268,7 +268,7 @@ export default function LowStockPage() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <div>
-                                                        <div className="font-mono text-sm flex gap-1">{product.compatibleModels.map(model => <Badge>{model}</Badge> )}</div>
+                                                        <div className="font-mono text-sm flex gap-1">{product.compatibleModels.map((model, index) => <Badge key={index}>{model}</Badge> )}</div>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>

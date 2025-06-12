@@ -27,13 +27,14 @@ import { useToast } from "@/hooks/use-toast"
 import GoBackButton from "@/components/GoBackButton"
 
 interface SaleItem {
-  id: string | null
+  id: string 
   productId: string
   productName: string
   quantitySold: number
   totalPrice: number
   profit: number
   createdAt: string
+  paymentStatus: String
 }
 
 interface SaleData {
@@ -227,7 +228,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
     setPayingAll(true)
     try {
       const response = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
-        method: "PATCH",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -265,22 +266,22 @@ export default function KhataSaleDetailPage({ params }: Props) {
     }
   }
 
-  const handlePaySingleItem = async (productId: string) => {
-    setPayingItems((prev) => new Set(prev).add(productId))
+  const handlePaySingleItem = async (saleItemId: string) => {
+    setPayingItems((prev) => new Set(prev).add(saleItemId))
     try {
-      const response = await fetch(`http://localhost:8083/api/v1/sale-items/${productId}/payment`, {
-        method: "PATCH",
+      const response = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
         body: JSON.stringify({
-          productId: productId,
+          saleItemId: saleItemId,
         }),
       })
 
       if (response.ok) {
-        const product = searchResults.find((p) => p.id === productId)
+        const product = searchResults.find((p) => p.id === saleItemId)
         toast({
           title: "Payment Successful",
           description: `Payment for ${product?.name || "item"} has been processed.`,
@@ -306,7 +307,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
     } finally {
       setPayingItems((prev) => {
         const newSet = new Set(prev)
-        newSet.delete(productId)
+        newSet.delete(saleItemId)
         return newSet
       })
     }
@@ -558,6 +559,8 @@ export default function KhataSaleDetailPage({ params }: Props) {
                     <TableHead className="text-center">Quantity</TableHead>
                     <TableHead className="text-right">Total Price</TableHead>
                     <TableHead className="text-right">Date</TableHead>
+                    <TableHead className="text-right">Status</TableHead>
+
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -566,17 +569,18 @@ export default function KhataSaleDetailPage({ params }: Props) {
                     const isPayingThisItem = payingItems.has(item.productId)
 
                     return (
-                      <TableRow key={`${item.productId}-${index}`}>
+                      <TableRow className={`${item.paymentStatus == "PAID" ? "bg-green-300" : ""} hover:bg-bg-green-300`} key={`${item.productId}-${index}`}>
                         <TableCell className="font-medium">{item.productName}</TableCell>
                         <TableCell className="text-center">{item.quantitySold}</TableCell>
                         <TableCell className="text-right">Rs. {item.totalPrice.toLocaleString()}</TableCell>
                         <TableCell className="text-right">{format(new Date(item.createdAt), "MMM dd, yyyy")}</TableCell>
+                        <TableCell className="text-right">{item.paymentStatus}</TableCell>
                         <TableCell className="text-right">
-                          {saleData.paymentStatus === "UNPAID" && (
+                          {item.paymentStatus === "UNPAID" && (
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handlePaySingleItem(item.productId)}
+                              onClick={() => handlePaySingleItem(item?.id)}
                               disabled={isPayingThisItem}
                             >
                               {isPayingThisItem ? "Processing..." : "Pay"}

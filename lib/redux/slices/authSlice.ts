@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 
-type UserRole = "admin" | "staff"
+type UserRole = ["ROLE_ADMIN" , "ROLE_USER"]
 
 interface User {
   id: string

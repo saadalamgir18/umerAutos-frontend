@@ -1,10 +1,9 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/hooks/use-auth"
+import { useAuth } from "@/lib/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,21 +15,82 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoggingIn, setIsLoggingIn] = useState(false)
-  const { login, isLoading, error } = useAuth()
+  const [loginSuccess, setLoginSuccess] = useState(false)
+  const { login, isLoading, error, isAuthenticated, isInitializing } = useAuth()
   const router = useRouter()
+
+  // Handle redirect after successful login
+  useEffect(() => {
+    if (loginSuccess && isAuthenticated) {
+      console.log("🎉 Login successful, redirecting to home...")
+      router.replace("/")
+    }
+  }, [loginSuccess, isAuthenticated, router])
+
+  // Redirect if already authenticated - but only after initialization
+  useEffect(() => {
+    if (!isInitializing && isAuthenticated && !loginSuccess) {
+      console.log("🔄 Already authenticated, redirecting to home...")
+      router.replace("/")
+    }
+  }, [isAuthenticated, isInitializing, router, loginSuccess])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoggingIn(true)
+    setLoginSuccess(false)
 
     try {
+      console.log("🚀 Starting login process...")
       const success = await login(email, password)
       if (success) {
-        router.push("/")
+        console.log("✅ Login hook returned success")
+        setLoginSuccess(true)
+        // Don't redirect here - let useEffect handle it
+      } else {
+        console.log("❌ Login hook returned failure")
       }
+    } catch (error) {
+      console.error("❌ Login process error:", error)
     } finally {
       setIsLoggingIn(false)
     }
+  }
+
+  // Show loading while checking authentication status
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/50 p-4">
+        <div className="flex items-center space-x-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span>Checking authentication...</span>
+        </div>
+      </div>
+    )
+  }
+
+  // Show success message while redirecting
+  if (loginSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/50 p-4">
+        <div className="flex items-center space-x-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span>Login successful! Redirecting...</span>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render login form if already authenticated
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/50 p-4">
+        <div className="flex items-center space-x-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span>Already logged in, redirecting...</span>
+        </div>
+      </div>
+    )
   }
 
   return (
