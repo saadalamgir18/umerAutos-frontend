@@ -152,7 +152,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
         setSearchLoading(false)
       }
     },
-    [toast],
+    [toast, searchResults],
   )
 
   // Debounce search
@@ -456,6 +456,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
         setSearchResults([])
         setSearchTerm("")
         setQuickAddQuantities({})
+        setSearchResults([])
 
         const updatedResponse = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
           credentials: "include",

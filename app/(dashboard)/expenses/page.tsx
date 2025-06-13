@@ -275,7 +275,7 @@ export default function ExpensesPage() {
         // Add the new expense to the state
         const createdExpense = {
           ...newExpense,
-          id: data.data.id || uuidv4(),
+          id: data.id || uuidv4(),
           createdAt: new Date().toISOString(),
         }
 
