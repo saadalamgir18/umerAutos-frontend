@@ -121,7 +121,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
       setSearchLoading(true)
       try {
         const response = await fetch(
-          `http://localhost:8083/api/v1/products?name=${encodeURIComponent(searchQuery)}&limit=20&page=0`,
+          `http://localhost:8083/api/v1/products?name=${encodeURIComponent(searchQuery)}&limit=20&page=1`,
           {
             credentials: "include",
           },
@@ -423,21 +423,27 @@ export default function KhataSaleDetailPage({ params }: Props) {
     try {
       const productsToAdd = cart.map((item) => ({
         productId: item.productId,
-        quantity: item.quantity,
-        discount: item.discount,
-        tax: item.tax,
+        quantitySold: item.quantity,
+        totalAmount: item.totalPrice
       }))
 
+      console.log("sending producs: ", productsToAdd);
+      
+
       const response = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
         body: JSON.stringify({
-          products: productsToAdd,
+          saleItems: productsToAdd,
         }),
       })
+      console.log(JSON.stringify({
+          saleItems: productsToAdd,
+        }));
+      
 
       if (response.ok) {
         toast({

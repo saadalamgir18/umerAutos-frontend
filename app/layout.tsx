@@ -13,8 +13,8 @@ export default function RootLayout({
         <title>Inventory Management System</title>
         <meta name="description" content="A comprehensive inventory management system" />
       </head>
-      <body>
-        <ClientLayout>{children}</ClientLayout>
+      <body suppressHydrationWarning>
+        <ClientLayout >{children}</ClientLayout>
       </body>
     </html>
   )
