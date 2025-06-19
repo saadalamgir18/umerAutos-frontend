@@ -2,7 +2,6 @@
 
 import type React from "react"
 import { createContext, useContext, useCallback, useState, useEffect, useRef } from "react"
-import { getCookie } from "@/lib/utils/jwt-utils"
 
 interface User {
   id?: string
@@ -33,12 +32,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isInitializing, setIsInitializing] = useState(true)
-
-  // Use ref to prevent multiple simultaneous auth checks
   const isCheckingAuth = useRef(false)
   const hasInitialized = useRef(false)
 
-  // Function to fetch current user from API
+  // Function to get cookie value
+  const getCookie = (name: string): string | null => {
+    if (typeof document === "undefined") return null
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) return parts.pop()?.split(";").shift() || null
+    return null
+  }
+
+  // Function to fetch current user from Spring Boot backend
   const fetchCurrentUser = useCallback(async (): Promise<User | null> => {
     if (isCheckingAuth.current) {
       console.log("⏳ Auth check already in progress, skipping...")
@@ -48,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isCheckingAuth.current = true
 
     try {
-      console.log("🔍 Fetching current user from server...")
+      console.log("🔍 Fetching current user from Spring Boot backend...")
       const response = await fetch("http://localhost:8083/api/auth/me", {
         method: "GET",
         credentials: "include",
@@ -66,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const userData = await response.json()
-      console.log("📋 Raw user data from server:", userData)
+      console.log("📋 Raw user data from Spring Boot:", userData)
 
       const user: User = {
         username: userData.username.split("@")[0],
@@ -103,8 +109,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("🔍 Token check:", !!token)
 
       if (token) {
-        // Token exists, verify with server
-        console.log("✅ Token found, verifying with server...")
+        // Token exists, verify with Spring Boot backend
+        console.log("✅ Token found, verifying with Spring Boot backend...")
         const userData = await fetchCurrentUser()
         console.log("🔄 Initialization fetch result:", userData)
       } else {
@@ -127,7 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null)
 
       try {
-        console.log("🔐 Attempting login...")
+        console.log("🔐 Attempting login with Spring Boot backend...")
         const response = await fetch("http://localhost:8083/api/auth/login", {
           method: "POST",
           headers: {
@@ -142,7 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (response.ok) {
           console.log("✅ Login API call successful")
-          // After successful login, fetch user data
+          // After successful login, fetch user data from backend
           const userData = await fetchCurrentUser()
           if (userData) {
             console.log("✅ Login complete, user authenticated:", userData)
@@ -177,7 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setIsAuthenticated(false)
 
-      // Call logout API to clear server-side session/cookie
+      // Call Spring Boot logout API to clear server-side session/cookie
       await fetch("http://localhost:8083/api/auth/logout", {
         method: "POST",
         credentials: "include",

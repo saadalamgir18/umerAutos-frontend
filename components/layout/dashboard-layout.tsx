@@ -21,6 +21,10 @@ import {
   BookOpen,
   Settings,
   Shield,
+  Tag,
+  Layers,
+  Car,
+  User,
 } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -85,6 +89,26 @@ const navItems = [
     href: "/suppliers",
     icon: <Users className="h-5 w-5" />,
   },
+  {
+    title: "Brands",
+    href: "/brands",
+    icon: <Tag className="h-5 w-5" />,
+  },
+  {
+    title: "Shelf Code",
+    href: "/shelf-code",
+    icon: <Layers className="h-5 w-5" />,
+  },
+  {
+    title: "Compatible Models",
+    href: "/compatible-models",
+    icon: <Car className="h-5 w-5" />,
+  },
+  {
+    title: "Users",
+    href: "/users",
+    icon: <User className="h-5 w-5" />,
+  }
 ]
 
 const getUserInitials = (username?: string): string => {

@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect, useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { AuthProvider, useAuth } from "@/lib/contexts/auth-context"
 import DashboardLayout from "@/components/layout/dashboard-layout"
 import { Toaster } from "@/components/ui/toaster"
@@ -12,40 +12,11 @@ import { ReduxProvider } from "@/lib/redux/provider"
 function AuthenticatedApp({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isInitializing } = useAuth()
   const pathname = usePathname()
-  const router = useRouter()
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
     setIsMounted(true)
   }, [])
-
-  useEffect(() => {
-    // Don't do anything until component is mounted and auth is initialized
-    if (!isMounted || isInitializing) {
-      console.log("⏳ Waiting for initialization", {
-        isMounted,
-        isInitializing,
-        pathname,
-      })
-      return
-    }
-
-    console.log("🔍 Checking auth state", {
-      isAuthenticated,
-      pathname,
-    })
-
-    // Handle redirects based on authentication state
-    if (!isAuthenticated && pathname !== "/login") {
-      console.log("🔄 Redirecting to login - user not authenticated")
-      router.replace("/login")
-    } else if (isAuthenticated && pathname === "/login") {
-      console.log("🔄 Redirecting to home - user already authenticated")
-      router.replace("/")
-    } else {
-      console.log("✅ No redirect needed")
-    }
-  }, [isAuthenticated, isInitializing, pathname, router, isMounted])
 
   // Show loading during initialization or mounting
   if (!isMounted || isInitializing) {
@@ -59,10 +30,20 @@ function AuthenticatedApp({ children }: { children: React.ReactNode }) {
     )
   }
 
+  // Define public routes that don't need authentication
+  const publicRoutes = ["/login", "/signup"]
+  const isPublicRoute = publicRoutes.includes(pathname)
+
+  console.log("🔍 Client Layout - Auth state:", {
+    isAuthenticated,
+    pathname,
+    isPublicRoute,
+  })
+
   return (
     <>
-      {pathname === "/login" ? (
-        // Login page without dashboard layout
+      {isPublicRoute ? (
+        // Public pages (login, signup) without dashboard layout
         <>
           {children}
           <Toaster />
@@ -74,11 +55,11 @@ function AuthenticatedApp({ children }: { children: React.ReactNode }) {
           <Toaster />
         </>
       ) : (
-        // Show loading while redirect is happening
+        // Show loading for protected routes while middleware handles redirect
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="flex flex-col items-center gap-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="text-sm text-muted-foreground">Redirecting...</p>
+            <p className="text-sm text-muted-foreground">Loading...</p>
           </div>
         </div>
       )}

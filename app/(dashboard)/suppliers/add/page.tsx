@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useDispatch } from "react-redux"
 import type { AppDispatch } from "@/lib/redux/store"
-import { addSupplier } from "@/lib/redux/slices/supplierSlice"
+import { addSupplier } from "../../../../lib/redux/slices/supplierSlice"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"

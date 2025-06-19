@@ -4,6 +4,9 @@ import productReducer from "./slices/productSlice"
 import salesReducer from "./slices/salesSlice"
 import supplierReducer from "./slices/supplierSlice"
 import expenseReducer from "./slices/expenseSlice"
+import brandReducer from "./slices/brandSlice"
+import shelfCodeReducer from "./slices/shelfCodeSlice"
+import compatibleModelReducer from "./slices/compatibleModelSlice"
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +15,9 @@ export const store = configureStore({
     sales: salesReducer,
     suppliers: supplierReducer,
     expenses: expenseReducer,
+    brands: brandReducer,
+    shelfCode: shelfCodeReducer,
+    compatibleModel: compatibleModelReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -73,6 +73,12 @@ const productSlice = createSlice({
       state.products = []
       state.filteredProducts = []
     },
+    updateStock: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
+      const product = state.products.find((p) => p.id === action.payload.id)
+      if (product) {
+        product.quantityInStock += action.payload.quantity
+      }
+    },
   },
 })
 
@@ -85,6 +91,7 @@ export const {
   updateProduct,
   deleteProductSuccess,
   resetProducts,
+  updateStock,
 } = productSlice.actions
 
 export default productSlice.reducer
