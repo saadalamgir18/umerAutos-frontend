@@ -427,7 +427,6 @@ export default function KhataSaleDetailPage({ params }: Props) {
         totalAmount: item.totalPrice
       }))
 
-      console.log("sending producs: ", productsToAdd);
       
 
       const response = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
@@ -440,11 +439,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
           saleItems: productsToAdd,
         }),
       })
-      console.log(JSON.stringify({
-          saleItems: productsToAdd,
-        }));
       
-
       if (response.ok) {
         toast({
           title: "Success!",

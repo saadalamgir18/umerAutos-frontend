@@ -127,7 +127,6 @@ export default function ProductsPage() {
         }
 
         const apiUrl = `http://localhost:8083/api/v1/products?${params.toString()}`
-        console.log("Fetching from:", apiUrl)
 
         const response = await fetch(apiUrl, {credentials: "include"})
 
@@ -136,7 +135,6 @@ export default function ProductsPage() {
         }
 
         const apiResponse = await response.json()
-        console.log("API Response:", apiResponse)
 
         // Handle API response with pagination object
         if (apiResponse.data && apiResponse.pagination) {
@@ -199,18 +197,6 @@ export default function ProductsPage() {
     }
   }, [debouncedSearchTerm, fetchProducts])
 
-  // Debug logging
-  useEffect(() => {
-    console.log("Pagination Debug:", {
-      currentPage,
-      totalPages,
-      totalItems,
-      itemsPerPage,
-      hasNext,
-      hasPrevious,
-      productsLength: products.length,
-    })
-  }, [currentPage, totalPages, totalItems, itemsPerPage, hasNext, hasPrevious, products.length])
 
   const handleRetry = async () => {
     setRetrying(true)
@@ -256,8 +242,6 @@ export default function ProductsPage() {
       return <Badge variant="destructive">Out of Stock</Badge>
     } else if (quantity <= 5) {
       return <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-200">Low Stock</Badge>
-    } else {
-      return <Badge variant="outline">In Stock</Badge>
     }
   }
 
@@ -472,7 +456,6 @@ export default function ProductsPage() {
                       <TableCell className="font-medium">
                         <div>
                           <div className="font-medium">{product.name}</div>
-                          <div className="text-sm text-muted-foreground">SKU: {product.sku}</div>
                         </div>
                       </TableCell>
                       <TableCell>

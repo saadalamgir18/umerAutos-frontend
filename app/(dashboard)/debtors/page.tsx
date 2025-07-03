@@ -84,7 +84,6 @@ export default function KhataPage() {
 
       const data: ApiResponse = await response.json()
 
-      console.log("API Response:", data)
 
       setSales(data.data)
 

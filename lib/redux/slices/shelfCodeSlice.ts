@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 interface ShelfCode {
   id: number;
-  name: string;
+  code: string;
 }
 
 interface ShelfCodeState {
@@ -32,14 +32,14 @@ export const fetchShelfCodes = createAsyncThunk(
 
 export const addShelfCode = createAsyncThunk(
   'shelfCode/addShelfCode',
-  async (shelfCode: { code: string }) => {
+  async (code: { code: string }) => {
     const response = await fetch('http://localhost:8083/api/v1/shelf', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: JSON.stringify(shelfCode),
+      body: JSON.stringify( {name: code}),
     });
     if (!response.ok) {
       throw new Error('Failed to add shelf code');

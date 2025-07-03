@@ -47,14 +47,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Function to fetch current user from Spring Boot backend
   const fetchCurrentUser = useCallback(async (): Promise<User | null> => {
     if (isCheckingAuth.current) {
-      console.log("⏳ Auth check already in progress, skipping...")
       return null
     }
 
     isCheckingAuth.current = true
 
     try {
-      console.log("🔍 Fetching current user from Spring Boot backend...")
       const response = await fetch("http://localhost:8083/api/auth/me", {
         method: "GET",
         credentials: "include",
@@ -63,7 +61,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!response.ok) {
         // If 401 or 403, user is not authenticated
         if (response.status === 401 || response.status === 403) {
-          console.log("❌ User not authenticated (401/403)")
           setUser(null)
           setIsAuthenticated(false)
           return null
@@ -72,7 +69,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const userData = await response.json()
-      console.log("📋 Raw user data from Spring Boot:", userData)
 
       const user: User = {
         username: userData.username.split("@")[0],
@@ -80,7 +76,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role: userData.role || [],
       }
 
-      console.log("✅ Setting user authenticated:", user)
       setUser(user)
       setIsAuthenticated(true)
       return user
@@ -97,30 +92,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Initialize authentication state - ONLY RUN ONCE
   useEffect(() => {
     if (hasInitialized.current) {
-      console.log("⚠️ Auth already initialized, skipping...")
       return
     }
 
     const initializeAuth = async () => {
-      console.log("🔄 Starting auth initialization...")
       hasInitialized.current = true
 
       const token = getCookie("token")
-      console.log("🔍 Token check:", !!token)
 
       if (token) {
         // Token exists, verify with Spring Boot backend
-        console.log("✅ Token found, verifying with Spring Boot backend...")
         const userData = await fetchCurrentUser()
-        console.log("🔄 Initialization fetch result:", userData)
       } else {
         // No token, user is not authenticated
-        console.log("❌ No token found, user not authenticated")
         setUser(null)
         setIsAuthenticated(false)
       }
 
-      console.log("✅ Auth initialization complete")
       setIsInitializing(false)
     }
 
@@ -133,7 +121,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null)
 
       try {
-        console.log("🔐 Attempting login with Spring Boot backend...")
         const response = await fetch("http://localhost:8083/api/auth/login", {
           method: "POST",
           headers: {
@@ -147,25 +134,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
 
         if (response.ok) {
-          console.log("✅ Login API call successful")
           // After successful login, fetch user data from backend
           const userData = await fetchCurrentUser()
           if (userData) {
-            console.log("✅ Login complete, user authenticated:", userData)
             return true
           } else {
-            console.log("❌ Login API succeeded but failed to fetch user data")
             setError("Failed to load user data")
             return false
           }
         } else {
           const errorText = await response.text()
-          console.log("❌ Login API failed:", errorText)
           setError(errorText || "Login failed")
           return false
         }
       } catch (error) {
-        console.error("❌ Login error:", error)
         setError("Network error. Please check if the server is running.")
         return false
       } finally {
@@ -177,7 +159,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logoutUser = useCallback(async () => {
     try {
-      console.log("🚪 Logging out...")
 
       // Clear local state first
       setUser(null)
@@ -192,7 +173,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Clear cookie manually as backup
       document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
 
-      console.log("✅ Logout completed")
     } catch (error) {
       console.error("❌ Logout error:", error)
       // Still clear local state even if API call fails

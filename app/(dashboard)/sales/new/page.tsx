@@ -111,7 +111,6 @@ export default function NewSalePage() {
       }
 
       const data = await response.json()
-      console.log(data);
       
       setFilteredProducts(data.data)
     } catch (err) {
@@ -204,7 +203,6 @@ export default function NewSalePage() {
       })),
     }
 
-    console.log(saleRequest);
     
 
     setIsSaving(true)

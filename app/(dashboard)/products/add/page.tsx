@@ -43,8 +43,6 @@ interface ProductFormData {
   name: string
   brandId: string
   modelId: string[]
-  sku: string
-  description: string
   quantityInStock: number
   purchasePrice: number
   sellingPrice: number
@@ -71,8 +69,6 @@ export default function AddProductPage() {
       name: "",
       brandId: "",
       modelId: [],
-      sku: "",
-      description: "",
       quantityInStock: 0,
       purchasePrice: 0,
       sellingPrice: 0,
@@ -131,8 +127,6 @@ export default function AddProductPage() {
         name: data.name,
         brandId: data.brandId,
         compatibleModelIds: data.modelId,
-        sku: data.sku,
-        description: data.description,
         quantityInStock: data.quantityInStock,
         purchasePrice: data.purchasePrice,
         sellingPrice: data.sellingPrice,
@@ -269,27 +263,7 @@ export default function AddProductPage() {
               </div>
 
               <div className="grid gap-4 md:grid-cols-3">
-                <FormField
-                  control={form.control}
-                  name="sku"
-                  rules={{
-                    required: "SKU is required",
-                    pattern: {
-                      value: /^[A-Za-z0-9-]+$/,
-                      message: "SKU must contain only letters, numbers, and hyphens",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>SKU/Part Number *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., BP-1001" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
+      
                 <FormField
                   control={form.control}
                   name="shelfCodeId"
@@ -347,19 +321,7 @@ export default function AddProductPage() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Enter product description" rows={4} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          
 
               <div className="grid gap-4 md:grid-cols-3">
                 <FormField

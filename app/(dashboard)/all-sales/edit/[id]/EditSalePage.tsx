@@ -77,7 +77,6 @@ export default function EditSalePage({ id }: Props) {
 
                 const data = await response.json()
 
-                console.log(data);
 
 
                 if (data) {

@@ -34,11 +34,6 @@ function AuthenticatedApp({ children }: { children: React.ReactNode }) {
   const publicRoutes = ["/login", "/signup"]
   const isPublicRoute = publicRoutes.includes(pathname)
 
-  console.log("🔍 Client Layout - Auth state:", {
-    isAuthenticated,
-    pathname,
-    isPublicRoute,
-  })
 
   return (
     <>

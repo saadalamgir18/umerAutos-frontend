@@ -36,7 +36,6 @@ function isPublicRoute(pathname: string): boolean {
 // Helper function to verify token with Spring Boot backend
 async function verifyTokenWithBackend(token: string): Promise<{ isValid: boolean; user?: any }> {
   try {
-    console.log("🔍 Verifying token with Spring Boot backend...")
 
     const response = await fetch("http://localhost:8083/api/auth/me", {
       method: "GET",
@@ -48,7 +47,6 @@ async function verifyTokenWithBackend(token: string): Promise<{ isValid: boolean
 
     if (response.ok) {
       const userData = await response.json()
-      console.log("✅ Token verified successfully:", userData)
       return {
         isValid: true,
         user: {
@@ -58,11 +56,9 @@ async function verifyTokenWithBackend(token: string): Promise<{ isValid: boolean
         },
       }
     } else {
-      console.log("❌ Token verification failed:", response.status)
       return { isValid: false }
     }
   } catch (error) {
-    console.error("❌ Error verifying token with backend:", error)
     return { isValid: false }
   }
 }
@@ -80,11 +76,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  console.log(`🔍 Middleware: ${pathname}`)
 
   // Get token from cookies
   const token = request.cookies.get("token")?.value
-  console.log(`🔐 Token exists: ${!!token}`)
 
   let isAuthenticated = false
   let isAdmin = false
@@ -97,9 +91,7 @@ export async function middleware(request: NextRequest) {
       isAuthenticated = true
       isAdmin = userData.isAdmin
       user = userData
-      console.log(`✅ User authenticated: ${userData.email}, Admin: ${isAdmin}`)
     } else {
-      console.log("❌ Invalid token, clearing cookie")
       // Clear invalid token
       const response = NextResponse.next()
       response.cookies.delete("token")
@@ -107,37 +99,30 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  console.log(`🔐 Auth status: ${isAuthenticated}, Admin: ${isAdmin}`)
 
   // Handle public routes (login, signup)
   if (isPublicRoute(pathname)) {
     if (isAuthenticated) {
-      console.log("🔄 Authenticated user accessing auth page, redirecting to dashboard")
       return NextResponse.redirect(new URL("/", request.url))
     }
-    console.log("👤 Non-authenticated user accessing auth route, allowing access")
     return NextResponse.next()
   }
 
   // Handle protected routes
   if (isProtectedRoute(pathname)) {
     if (!isAuthenticated) {
-      console.log("🚫 Non-authenticated user accessing protected route, redirecting to login")
       return NextResponse.redirect(new URL("/login", request.url))
     }
 
     // Check admin routes
     if (isAdminRoute(pathname) && !isAdmin) {
-      console.log("🚫 Non-admin user accessing admin route, redirecting to dashboard")
       return NextResponse.redirect(new URL("/", request.url))
     }
 
-    console.log("✅ Authenticated user accessing protected route, allowing access")
     return NextResponse.next()
   }
 
   // Default: allow access
-  console.log("➡️ Default: allowing access")
   return NextResponse.next()
 }
 

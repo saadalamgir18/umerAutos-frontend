@@ -17,7 +17,7 @@ export default function AddShelfCodePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await dispatch(addShelfCode({ code }));
+      await dispatch(addShelfCode(code ));
       router.push("/shelf-code");
     } catch (error) {
       console.error("Failed to add shelf code:", error);
@@ -30,9 +30,9 @@ export default function AddShelfCodePage() {
       <form onSubmit={handleSubmit} className="max-w-md">
         <div className="space-y-4">
           <div>
-            <Label htmlFor="code">Code</Label>
+            <Label htmlFor="name">Code</Label>
             <Input
-              id="code"
+              id="name"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               required

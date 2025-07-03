@@ -40,8 +40,6 @@ export default function LowStockPage() {
             url += `?name=${encodeURIComponent(searchTerm)}`
           }
     
-          console.log("Fetching products from:", url)
-    
           const response = await fetch(url, { credentials: "include"})
     
           if (!response.ok) {
@@ -49,7 +47,6 @@ export default function LowStockPage() {
           }
     
           const data = await response.json()
-          console.log(data.data);
           
           dispatch({ type: "products/fetchProductsSuccess", payload: data.data })
         } catch (error) {
@@ -82,10 +79,8 @@ export default function LowStockPage() {
         lowStockItems.filter(
           (p) =>
             p.name.toLowerCase().includes(term) ||
-            p.sku.toLowerCase().includes(term) ||
-            p.brand.toLowerCase().includes(term) ||
-            p.category.toLowerCase().includes(term),
-        ),
+            p.brandName.toLowerCase().includes(term)
+        )
       )
     } else {
       const lowStockItems = products.filter((p) => p.quantityInStock <= LOW_STOCK_THRESHOLD)

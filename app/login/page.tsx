@@ -23,17 +23,13 @@ export default function LoginPage() {
     setIsLoggingIn(true)
 
     try {
-      console.log("🚀 Starting login process...")
       const success = await login(email, password)
       if (success) {
-        console.log("✅ Login successful, redirecting...")
         // Use window.location to trigger middleware
         window.location.href = "/"
       } else {
-        console.log("❌ Login failed")
       }
     } catch (error) {
-      console.error("❌ Login process error:", error)
     } finally {
       setIsLoggingIn(false)
     }

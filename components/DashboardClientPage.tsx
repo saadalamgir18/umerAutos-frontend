@@ -12,9 +12,7 @@ export default function DashboardClientPage() {
   const [mounted, setMounted] = useState(false)
   const { user } = useAuth()
   const isAdmin = user?.role[0] === "ROLE_ADMIN"
-  console.log(user);
   
-  console.log("isAdmin: ", isAdmin);
   
 
   const [todayExpenses, setTodayExpenses] = useState<number>(0)
