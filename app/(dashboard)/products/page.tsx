@@ -355,7 +355,7 @@ export default function ProductsPage() {
           <CardDescription>
             {error
               ? "Unable to load products. Please check your connection and try again."
-              : `Showing ${products.length} of ${totalItems} products${searchTerm ? ` matching "${searchTerm}"` : ""}`}
+              : ``}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -455,7 +455,7 @@ export default function ProductsPage() {
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">
                         <div>
-                          <div className="font-medium">{product.name}</div>
+                          <div className="font-bold">{product.name}</div>
                         </div>
                       </TableCell>
                       <TableCell>

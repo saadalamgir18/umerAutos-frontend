@@ -37,8 +37,6 @@ interface ProductFormData {
   name: string
   brandId: string
   compatibleModelsIds: string[]
-  sku: string
-  description: string
   quantityInStock: number
   purchasePrice: number
   sellingPrice: number
@@ -71,8 +69,6 @@ export default function EditProductPage({ params }: Props) {
       name: "",
       brandId: "",
       compatibleModelsIds: [],
-      sku: "",
-      description: "",
       quantityInStock: 0,
       purchasePrice: 0,
       sellingPrice: 0,
@@ -122,8 +118,6 @@ export default function EditProductPage({ params }: Props) {
           name: product.name || "",
           brandId: product.brandId || "",
           compatibleModelsIds: compatibleModelsIds,
-          sku: product.sku || "",
-          description: product.description || "",
           quantityInStock: product.quantityInStock || 0,
           purchasePrice: product.purchasePrice || 0,
           sellingPrice: product.sellingPrice || 0,
@@ -153,8 +147,6 @@ export default function EditProductPage({ params }: Props) {
         name: data.name,
         brandId: data.brandId,
         compatibleModelIds: data.compatibleModelsIds,
-        sku: data.sku,
-        description: data.description,
         quantityInStock: data.quantityInStock,
         purchasePrice: data.purchasePrice,
         sellingPrice: data.sellingPrice,
@@ -294,26 +286,7 @@ export default function EditProductPage({ params }: Props) {
               </div>
 
               <div className="grid gap-4 md:grid-cols-3">
-                <FormField
-                  control={form.control}
-                  name="sku"
-                  rules={{
-                    required: "SKU is required",
-                    pattern: {
-                      value: /^[A-Za-z0-9-]+$/,
-                      message: "SKU must contain only letters, numbers, and hyphens",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>SKU/Part Number *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., BP-1001" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                
 
                 <FormField
                   control={form.control}
@@ -372,19 +345,7 @@ export default function EditProductPage({ params }: Props) {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Enter product description" rows={4} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              
 
               <div className="grid gap-4 md:grid-cols-3">
                 <FormField

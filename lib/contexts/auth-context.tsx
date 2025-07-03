@@ -143,8 +143,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return false
           }
         } else {
-          const errorText = await response.text()
-          setError(errorText || "Login failed")
+          const errorText = await response.json()
+          setError(errorText?.message || "Login failed")
           return false
         }
       } catch (error) {
