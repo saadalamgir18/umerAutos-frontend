@@ -111,6 +111,7 @@ const navItems = [
   }
 ]
 
+
 const getUserInitials = (username?: string): string => {
   if (!username) return "U"
 
