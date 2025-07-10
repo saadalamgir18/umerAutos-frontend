@@ -30,6 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { API_URL } from "@/lib/api";
 
 // Mock expense categories
 const expenseCategories = [
@@ -84,7 +85,7 @@ export default function ExpensesPage() {
     setIsLoading(true)
     try {
       // Build the URL with query parameters
-      let url = "http://localhost:8083/api/v1/expenses"
+      let url = `${API_URL}/api/v1/expenses`
 
       // Add query parameters
       const params = new URLSearchParams()
@@ -257,7 +258,7 @@ export default function ExpensesPage() {
         date,
       }
 
-      const response = await fetch("http://localhost:8083/api/v1/expenses", {
+      const response = await fetch(`${API_URL}/api/v1/expenses`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -317,7 +318,7 @@ export default function ExpensesPage() {
     if (!expenseToDelete) return
 
     try {
-      const response = await fetch(`http://localhost:8083/api/v1/expenses/${expenseToDelete}`, {
+      const response = await fetch(`${API_URL}/api/v1/expenses/${expenseToDelete}`, {
         method: "DELETE",
          credentials: "include"
       })

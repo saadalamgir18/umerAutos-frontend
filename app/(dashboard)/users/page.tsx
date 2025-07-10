@@ -7,6 +7,7 @@ import { AlertCircle, Pencil } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/lib/api";
 
 interface User {
   id: string;
@@ -25,7 +26,7 @@ export default function UsersPage() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("http://localhost:8083/api/auth/users", {credentials: "include"});
+        const res = await fetch(`${API_URL}/api/auth/users`, {credentials: "include"});
         if (!res.ok) {
           throw new Error("Failed to fetch users");
         }

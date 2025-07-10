@@ -42,6 +42,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
+import { API_URL } from "@/lib/api";
 
 interface Product {
   id: string
@@ -126,7 +127,7 @@ export default function ProductsPage() {
           params.append("name", searchQuery.trim())
         }
 
-        const apiUrl = `http://localhost:8083/api/v1/products?${params.toString()}`
+        const apiUrl = `${API_URL}/api/v1/products?${params.toString()}`
 
         const response = await fetch(apiUrl, {credentials: "include"})
 
@@ -212,7 +213,7 @@ export default function ProductsPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:8083/api/v1/products/${id}`, {
+      const response = await fetch(`${API_URL}/api/v1/products/${id}`, {
         method: "DELETE",
         credentials: "include"
       })

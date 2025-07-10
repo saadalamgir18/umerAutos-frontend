@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useToast } from "@/hooks/use-toast"
+import { API_URL } from "@/lib/api";
 
 export default function LowStockPage() {
   const router = useRouter()
@@ -33,7 +34,7 @@ export default function LowStockPage() {
         setIsLoading(true)
         try {
           // Build the URL with query parameters
-          let url = "http://localhost:8083/api/v1/products"
+          let url = `${API_URL}/api/v1/products`
     
           // Add search parameter if exists
           if (searchTerm) {

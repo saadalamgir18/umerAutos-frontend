@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
+import { API_URL } from "@/lib/api";
+
+// const res = await fetch(`${API_URL}/api/products`);
+
 // Define route patterns
 const publicRoutes = ["/login", "/signup"]
 const protectedRoutes = [
@@ -37,12 +41,14 @@ function isPublicRoute(pathname: string): boolean {
 async function verifyTokenWithBackend(token: string): Promise<{ isValid: boolean; user?: any }> {
   try {
 
-    const response = await fetch("http://localhost:8083/api/auth/me", {
+    const response = await fetch(`${API_URL}/api/auth/me`, {
       method: "GET",
       headers: {
         Cookie: `token=${token}`,
         "Content-Type": "application/json",
+
       },
+      credentials: "include"
     })
 
     if (response.ok) {
@@ -59,6 +65,7 @@ async function verifyTokenWithBackend(token: string): Promise<{ isValid: boolean
       return { isValid: false }
     }
   } catch (error) {
+  
     return { isValid: false }
   }
 }
@@ -84,6 +91,8 @@ export async function middleware(request: NextRequest) {
   let isAdmin = false
   let user = null
 
+  
+
   // Verify token with Spring Boot backend if it exists
   if (token) {
     const { isValid, user: userData } = await verifyTokenWithBackend(token)
@@ -94,7 +103,7 @@ export async function middleware(request: NextRequest) {
     } else {
       // Clear invalid token
       const response = NextResponse.next()
-      response.cookies.delete("token")
+      // response.cookies.delete("token")
       return response
     }
   }

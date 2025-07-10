@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { toastUtils } from "@/lib/utils/toast-utils"
 import { useAuth } from "@/lib/contexts/auth-context"
+import { API_URL } from "@/lib/api";
 
 export default function SuppliersPage() {
   const router = useRouter()
@@ -51,7 +52,7 @@ export default function SuppliersPage() {
     setIsLoading(true)
     try {
       // Build the URL with query parameters
-      let url = "http://localhost:8083/api/v1/suppliers"
+      let url = `${API_URL}/api/v1/suppliers`
 
       // Add query parameters
       const params = new URLSearchParams()
@@ -177,7 +178,7 @@ export default function SuppliersPage() {
     if (!supplierToDelete) return
 
     try {
-      const response = await fetch(`http://localhost:8083/api/v1/suppliers/${supplierToDelete}`, {
+      const response = await fetch(`${API_URL}/api/v1/suppliers/${supplierToDelete}`, {
         method: "DELETE",
       })
 

@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useCallback, useState, useEffect, useRef } from "react"
+import { API_URL } from "@/lib/api";
 
 interface User {
   id?: string
@@ -53,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isCheckingAuth.current = true
 
     try {
-      const response = await fetch("http://localhost:8083/api/auth/me", {
+      const response = await fetch(`${API_URL}/api/auth/me`, {
         method: "GET",
         credentials: "include",
       })
@@ -121,17 +122,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null)
 
       try {
-        const response = await fetch("http://localhost:8083/api/auth/login", {
+        console.log("API_URL: ", API_URL);
+        
+        const response = await fetch(`${API_URL}/api/auth/login`, {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
-          body: JSON.stringify({
+            body: JSON.stringify({
             email,
             password,
           }),
         })
+        setTimeout(() => {
+          const cookie = document.cookie
+          console.log("🍪 document.cookie =>", cookie)
+          // You can also extract token like this:
+          const token = cookie
+            .split("; ")
+            .find((row) => row.startsWith("token="))
+            ?.split("=")[1]
+          console.log("🔐 accessToken from cookie:", token)
+        }, 500)
 
         if (response.ok) {
           // After successful login, fetch user data from backend
@@ -165,13 +178,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(false)
 
       // Call Spring Boot logout API to clear server-side session/cookie
-      await fetch("http://localhost:8083/api/auth/logout", {
+      await fetch(`${API_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       })
 
       // Clear cookie manually as backup
       document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+      document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+
 
     } catch (error) {
       console.error("❌ Logout error:", error)

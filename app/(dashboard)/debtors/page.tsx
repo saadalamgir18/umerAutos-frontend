@@ -18,6 +18,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { API_URL } from "@/lib/api";
 
 interface SaleItem {
   id: string | null
@@ -74,7 +75,7 @@ export default function KhataPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:8083/api/v1/sales-summary?page=${currentPage}&limit=${itemsPerPage}&status=unpaid`,
+        `${API_URL}/api/v1/sales-summary?page=${currentPage}&limit=${itemsPerPage}&status=unpaid`,
         { credentials: "include"}
       )
 

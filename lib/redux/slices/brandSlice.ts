@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_URL } from "@/lib/api";
 
 interface Brand {
   id: string;
@@ -19,7 +20,7 @@ const initialState: BrandState = {
 };
 
 export const fetchBrands = createAsyncThunk('brands/fetchBrands', async () => {
-  const response = await fetch('http://localhost:8083/api/v1/brands', {credentials: 'include'});
+  const response = await fetch(`${API_URL}/api/v1/brands`, {credentials: 'include'});
   if (!response.ok) {
     throw new Error('Failed to fetch brands');
   }
@@ -27,7 +28,7 @@ export const fetchBrands = createAsyncThunk('brands/fetchBrands', async () => {
 });
 
 export const addBrand = createAsyncThunk('brands/addBrand', async (brand: { name: string }) => {
-  const response = await fetch('http://localhost:8083/api/v1/brands', {
+  const response = await fetch(`${API_URL}/api/v1/brands`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -42,7 +43,7 @@ export const addBrand = createAsyncThunk('brands/addBrand', async (brand: { name
 });
 
 export const updateBrand = createAsyncThunk('brands/updateBrand', async (brand: Brand) => {
-  const response = await fetch(`http://localhost:8083/api/v1/brands/${brand.id}`, {
+  const response = await fetch(`${API_URL}/api/v1/brands/${brand.id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -57,7 +58,7 @@ export const updateBrand = createAsyncThunk('brands/updateBrand', async (brand: 
 });
 
 export const deleteBrand = createAsyncThunk('brands/deleteBrand', async (id: string) => {
-  const response = await fetch(`http://localhost:8083/api/v1/brands/${id}`, {
+  const response = await fetch(`${API_URL}/api/v1/brands/${id}`, {
     method: 'DELETE',
     credentials: 'include',
   });

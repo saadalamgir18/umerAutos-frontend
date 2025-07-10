@@ -24,10 +24,14 @@ export default function LoginPage() {
 
     try {
       const success = await login(email, password)
+      console.log("success: " ,success);
+      
       if (success) {
         // Use window.location to trigger middleware
         window.location.href = "/"
       } else {
+        console.log("success: " ,success);
+        
       }
     } catch (error) {
     } finally {

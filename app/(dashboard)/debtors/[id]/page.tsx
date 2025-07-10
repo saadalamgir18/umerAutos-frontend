@@ -25,6 +25,7 @@ import {
 import { format } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
 import GoBackButton from "@/components/GoBackButton"
+import { API_URL } from "@/lib/api";
 
 interface SaleItem {
   id: string 
@@ -121,7 +122,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
       setSearchLoading(true)
       try {
         const response = await fetch(
-          `http://localhost:8083/api/v1/products?name=${encodeURIComponent(searchQuery)}&limit=20&page=1`,
+          `${API_URL}/api/v1/products?name=${encodeURIComponent(searchQuery)}&limit=20&page=1`,
           {
             credentials: "include",
           },
@@ -168,7 +169,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
   useEffect(() => {
     const fetchSaleData = async () => {
       try {
-        const response = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
+        const response = await fetch(`${API_URL}/api/v1/sales-summary/${id}`, {
           credentials: "include",
         })
 
@@ -227,7 +228,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
   const handlePayAll = async () => {
     setPayingAll(true)
     try {
-      const response = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
+      const response = await fetch(`${API_URL}/api/v1/sales-summary/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -242,7 +243,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
           description: `All items for ${saleData.customerName} have been marked as paid.`,
         })
         // Refresh sale data
-        const updatedResponse = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
+        const updatedResponse = await fetch(`${API_URL}/api/v1/sales-summary/${id}`, {
           credentials: "include",
         })
         if (updatedResponse.ok) {
@@ -267,7 +268,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
   const handlePaySingleItem = async (saleItemId: string) => {
     setPayingItems((prev) => new Set(prev).add(saleItemId))
     try {
-      const response = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
+      const response = await fetch(`${API_URL}/api/v1/sales-summary/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -285,7 +286,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
           description: `Payment for ${product?.name || "item"} has been processed.`,
         })
         // Refresh sale data
-        const updatedResponse = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
+        const updatedResponse = await fetch(`${API_URL}/api/v1/sales-summary/${id}`, {
           credentials: "include",
         })
         if (updatedResponse.ok) {
@@ -429,7 +430,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
 
       
 
-      const response = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
+      const response = await fetch(`${API_URL}/api/v1/sales-summary/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -453,7 +454,7 @@ export default function KhataSaleDetailPage({ params }: Props) {
         setQuickAddQuantities({})
         setSearchResults([])
 
-        const updatedResponse = await fetch(`http://localhost:8083/api/v1/sales-summary/${id}`, {
+        const updatedResponse = await fetch(`${API_URL}/api/v1/sales-summary/${id}`, {
           credentials: "include",
         })
         if (updatedResponse.ok) {

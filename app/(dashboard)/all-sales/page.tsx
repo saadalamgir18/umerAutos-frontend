@@ -32,6 +32,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { RefreshCcw } from "lucide-react"
+import { API_URL } from "@/lib/api";
 
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -69,7 +70,7 @@ export default function DailySalesPage() {
     setIsLoading(true)
     try {
       // Build the URL with query parameters
-      let url = "http://localhost:8083/api/v1/sales"
+      let url = `${API_URL}/api/v1/sales`
 
       // Add query parameters
       const params = new URLSearchParams()
@@ -191,7 +192,7 @@ export default function DailySalesPage() {
     if (!saleToDelete) return
 
     try {
-      const response = await fetch(`http://localhost:8083/api/v1/sales/${saleToDelete}`, {
+      const response = await fetch(`${API_URL}/api/v1/sales/${saleToDelete}`, {
         method: "DELETE",
         credentials: "include"
       })

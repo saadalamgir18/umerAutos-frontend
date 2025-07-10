@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { API_URL } from "@/lib/api";
 
 interface SupplierFormData {
   name: string
@@ -79,7 +80,7 @@ export default function EditSupplierPage({ params }: { params: { id: string } })
       }
 
       // In a real application, you would make an API call here
-      // const response = await fetch(`http://localhost:8083/api/v1/suppliers/${params.id}`, {
+      // const response = await fetch(`${API_URL}/api/v1/suppliers/${params.id}`, {
       //   method: "PUT",
       //   headers: {
       //     "Content-Type": "application/json",

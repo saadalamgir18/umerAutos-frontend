@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_URL } from "@/lib/api";
 
 interface ShelfCode {
   id: number;
@@ -20,7 +21,7 @@ const initialState: ShelfCodeState = {
 export const fetchShelfCodes = createAsyncThunk(
   'shelfCode/fetchShelfCodes',
   async () => {
-    const response = await fetch('http://localhost:8083/api/v1/shelf', {
+    const response = await fetch(`${API_URL}/api/v1/shelf`, {
       credentials: 'include',
     });
     if (!response.ok) {
@@ -32,14 +33,14 @@ export const fetchShelfCodes = createAsyncThunk(
 
 export const addShelfCode = createAsyncThunk(
   'shelfCode/addShelfCode',
-  async (code: { code: string }) => {
-    const response = await fetch('http://localhost:8083/api/v1/shelf', {
+  async (shelfCode: { code: string }) => {
+    const response = await fetch(`${API_URL}/api/v1/shelf`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: JSON.stringify( {name: code}),
+      body: JSON.stringify(shelfCode),
     });
     if (!response.ok) {
       throw new Error('Failed to add shelf code');
@@ -51,7 +52,7 @@ export const addShelfCode = createAsyncThunk(
 export const updateShelfCode = createAsyncThunk(
   'shelfCode/updateShelfCode',
   async ({ id, code }: { id: number; code: string }) => {
-    const response = await fetch(`http://localhost:8083/api/v1/shelf/${id}`, {
+    const response = await fetch(`${API_URL}/api/v1/shelf/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -69,7 +70,7 @@ export const updateShelfCode = createAsyncThunk(
 export const deleteShelfCode = createAsyncThunk(
   'shelfCode/deleteShelfCode',
   async (id: number) => {
-    const response = await fetch(`http://localhost:8083/api/v1/shelf/${id}`, {
+    const response = await fetch(`${API_URL}/api/v1/shelf/${id}`, {
       method: 'DELETE',
       credentials: 'include',
     });

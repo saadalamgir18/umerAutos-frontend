@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/lib/contexts/auth-context"
+import { API_URL } from "@/lib/api"
 
 export default function DashboardClientPage() {
   const [mounted, setMounted] = useState(false)
@@ -30,10 +31,10 @@ export default function DashboardClientPage() {
     async function fetchData() {
       try {
         const [todayExpRes, monthlyExpRes, monthlySales, todaySales] = await Promise.all([
-          fetch("http://localhost:8083/api/v1/expenses/today", {credentials: "include"}),
-          fetch("http://localhost:8083/api/v1/expenses/monthly", {credentials: "include"}),
-          fetch("http://localhost:8083/api/v1/sales/monthly-revenue", {credentials: "include"}),
-          fetch("http://localhost:8083/api/v1/today-sale/totalSale", {credentials: "include"}),
+          fetch(`${API_URL}/api/v1/expenses/today`, {credentials: "include"}),
+          fetch(`${API_URL}/api/v1/expenses/monthly`, {credentials: "include"}),
+          fetch(`${API_URL}/api/v1/sales/monthly-revenue`, {credentials: "include"}),
+          fetch(`${API_URL}/api/v1/today-sale/totalSale`, {credentials: "include"}),
         ])
 
         const todayExpData = await todayExpRes.json()

@@ -11,6 +11,7 @@ import { toast } from "react-toastify"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { API_URL } from "@/lib/api";
 
 // Define interfaces for the sale data based on the actual API response
 interface Product {
@@ -69,7 +70,7 @@ export default function EditSalePage({ id }: Props) {
             setApiErrors(null)
 
             try {
-                const response = await fetch(`http://localhost:8083/api/v1/sales/${id}`, { credentials: "include"})
+                const response = await fetch(`${API_URL}/api/v1/sales/${id}`, { credentials: "include"})
 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch sale: ${response.status}`)
@@ -156,7 +157,7 @@ export default function EditSalePage({ id }: Props) {
             }
 
             // Send the update request
-            const response = await fetch(`http://localhost:8083/api/v1/sales/${id}`, {
+            const response = await fetch(`${API_URL}/api/v1/sales/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

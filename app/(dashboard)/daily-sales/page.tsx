@@ -19,6 +19,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { API_URL } from "@/lib/api";
 
 interface DailySaleItem {
   id: string
@@ -67,7 +68,7 @@ export default function DailySalesPage() {
     setError(null)
 
     try {
-      const res = await fetch(`http://localhost:8083/api/v1/today-sales?page=${currentPage}&limit=${itemsPerPage}`, { credentials: "include"})
+      const res = await fetch(`${API_URL}/api/v1/today-sales?page=${currentPage}&limit=${itemsPerPage}`, { credentials: "include"})
 
       if (!res.ok) {
         throw new Error(`Error fetching daily sales: ${res.status}`)

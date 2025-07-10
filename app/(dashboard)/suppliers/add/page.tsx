@@ -14,6 +14,7 @@ import { AlertCircle } from "lucide-react"
 import { v4 as uuidv4 } from "uuid"
 import { useForm } from "react-hook-form"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { API_URL } from "@/lib/api";
 
 interface SupplierFormData {
   name: string
@@ -58,32 +59,32 @@ export default function AddSupplierPage() {
       }
 
       // In a real application, you would make an API call here
-      // const response = await fetch("http://localhost:8083/api/v1/suppliers", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(data),
-      // })
+      const response = await fetch(`${API_URL}/api/v1/suppliers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
 
-      // const responseData = await response.json()
+      const responseData = await response.json()
 
-      // if (!response.ok) {
-      //   if (response.status === 400 && responseData.data) {
-      //     setApiErrors(responseData.data)
-      //
-      //     // Set form errors from API response
-      //     Object.entries(responseData.data).forEach(([field, message]) => {
-      //       form.setError(field as any, {
-      //         type: "server",
-      //         message: message as string,
-      //       })
-      //     })
-      //
-      //     throw new Error(responseData.message || "Failed to add supplier")
-      //   }
-      //   throw new Error(responseData.message || `API error: ${response.status}`)
-      // }
+      if (!response.ok) {
+        if (response.status === 400 && responseData.data) {
+          setApiErrors(responseData.data)
+
+          // Set form errors from API response
+          Object.entries(responseData.data).forEach(([field, message]) => {
+            form.setError(field as any, {
+              type: "server",
+              message: message as string,
+            })
+          })
+
+          throw new Error(responseData.message || "Failed to add supplier")
+        }
+        throw new Error(responseData.message || `API error: ${response.status}`)
+      }
 
       dispatch(addSupplier(newSupplier))
       router.push("/suppliers")

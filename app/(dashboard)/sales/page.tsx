@@ -18,6 +18,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { API_URL } from "@/lib/api";
 
 // Define the API response interface
 interface SaleItem {
@@ -72,7 +73,7 @@ export default function SalesPage() {
     try {
       // Add pagination parameters to the API request
       const response = await fetch(
-        `http://localhost:8083/api/v1/sales-summary?page=${currentPage}&limit=${itemsPerPage}&sortBy=${sortField}&sortDirection=${sortDirection}`,
+        `${API_URL}/api/v1/sales-summary?page=${currentPage}&limit=${itemsPerPage}&sortBy=${sortField}&sortDirection=${sortDirection}`,
         { credentials: "include"}
       )
 

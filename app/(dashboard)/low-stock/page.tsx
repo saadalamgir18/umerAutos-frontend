@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Package, Search, AlertTriangle, TrendingDown, ShoppingCart, Plus, Loader2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
+import { API_URL } from "@/lib/api";
 
 interface Product {
     id: string
@@ -38,7 +39,7 @@ export default function LowStockPage() {
                 setLoading(true)
                 setError(null)
 
-                const response = await fetch("http://localhost:8083/api/v1/products", { credentials: "include" })
+                const response = await fetch(`${API_URL}/api/v1/products`, { credentials: "include" })
 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch products: ${response.status} ${response.statusText}`)

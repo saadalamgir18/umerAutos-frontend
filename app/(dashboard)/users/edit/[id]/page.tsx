@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Shield } from "lucide-react";
+import { API_URL } from "@/lib/api";
 
 interface User {
   id: string;
@@ -33,7 +34,7 @@ export default function EditUserPage({ params }: Props) {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch(`http://localhost:8083/api/auth/users/${id}`, {credentials: "include"});
+        const res = await fetch(`${API_URL}/api/auth/users/${id}`, {credentials: "include"});
         if (!res.ok) throw new Error("Failed to fetch user");
         const data = await res.json();
         setUser(data);
@@ -53,7 +54,7 @@ export default function EditUserPage({ params }: Props) {
     setError("");
     setSuccess(false);
     try {
-      const res = await fetch(`http://localhost:8083/api/auth/users/${id}`, {
+      const res = await fetch(`${API_URL}/api/auth/users/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roles: role }),

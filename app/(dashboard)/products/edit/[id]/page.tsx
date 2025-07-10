@@ -15,6 +15,7 @@ import { toastUtils } from "@/lib/utils/toast-utils"
 import { useForm } from "react-hook-form"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Checkbox } from "@/components/ui/checkbox"
+import { API_URL } from "@/lib/api";
 
 // Types for related entities
 interface Brand {
@@ -84,24 +85,24 @@ export default function EditProductPage({ params }: Props) {
 
       try {
         // Fetch product
-        const productResponse = await fetch(`http://localhost:8083/api/v1/products/${id}`, { credentials: "include"})
+        const productResponse = await fetch(`${API_URL}/api/v1/products/${id}`, { credentials: "include"})
         if (!productResponse.ok) throw new Error("Failed to fetch product")
         const productData = await productResponse.json()
 
         // Fetch brands
-        const brandsResponse = await fetch("http://localhost:8083/api/v1/brands", { credentials: "include"})
+        const brandsResponse = await fetch(`${API_URL}/api/v1/brands`, { credentials: "include"})
         if (!brandsResponse.ok) throw new Error("Failed to fetch brands")
         const brandsData = await brandsResponse.json()
         setBrands(brandsData)
 
         // Fetch compatible models
-        const modelsResponse = await fetch("http://localhost:8083/api/v1/compatible-models", { credentials: "include"})
+        const modelsResponse = await fetch(`${API_URL}/api/v1/compatible-models`, { credentials: "include"})
         if (!modelsResponse.ok) throw new Error("Failed to fetch compatible models")
         const modelsData = await modelsResponse.json()
         setCompatibleModels(modelsData)
 
         // Fetch shelf codes
-        const shelfCodesResponse = await fetch("http://localhost:8083/api/v1/shelf", { credentials: "include"})
+        const shelfCodesResponse = await fetch(`${API_URL}/api/v1/shelf`, { credentials: "include"})
         if (!shelfCodesResponse.ok) throw new Error("Failed to fetch shelf codes")
         const shelfCodesData = await shelfCodesResponse.json()
         setShelfCodes(shelfCodesData)
@@ -153,7 +154,7 @@ export default function EditProductPage({ params }: Props) {
         shelfCodeId: data.shelfCodeId ? data.shelfCodeId : null,
       }
 
-      const response = await fetch(`http://localhost:8083/api/v1/products/${id}`, {
+      const response = await fetch(`${API_URL}/api/v1/products/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

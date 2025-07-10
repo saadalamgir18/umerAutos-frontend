@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertCircle, User, Lock, Shield } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { API_URL } from "@/lib/api";
 
 export default function SignupPage() {
   const [username, setUsername] = useState("")
@@ -26,7 +27,7 @@ export default function SignupPage() {
     setError("")
     setSuccess(false)
     try {
-      const res = await fetch("http://localhost:8083/api/auth/signup", {
+      const res = await fetch(`${API_URL}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userName: username, email, password }),

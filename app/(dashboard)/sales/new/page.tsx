@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { toastUtils } from "@/lib/utils/toast-utils"
+import { API_URL } from "@/lib/api";
 
 // Define the product type based on the API response
 interface Product {
@@ -103,7 +104,7 @@ export default function NewSalePage() {
     setIsLoading(true)
     setError(null)
     try {
-      const url = `http://localhost:8083/api/v1/products?name=${encodeURIComponent(search)}`
+      const url = `${API_URL}/api/v1/products?name=${encodeURIComponent(search)}`
       const response = await fetch(url, { credentials: "include"})
 
       if (!response.ok) {
@@ -209,7 +210,7 @@ export default function NewSalePage() {
 
     try {
       // Send the sale data to the API
-      const response = await fetch("http://localhost:8083/api/v1/sales-summary", {
+      const response = await fetch(`${API_URL}/api/v1/sales-summary`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

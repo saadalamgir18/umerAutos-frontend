@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_URL } from "@/lib/api";
 
 interface CompatibleModel {
   id: number;
@@ -20,7 +21,7 @@ const initialState: CompatibleModelState = {
 export const fetchCompatibleModels = createAsyncThunk(
   'compatibleModel/fetchCompatibleModels',
   async () => {
-    const response = await fetch('http://localhost:8083/api/v1/compatible-models', {
+    const response = await fetch(`${API_URL}/api/v1/compatible-models`, {
       credentials: 'include',
     });
     if (!response.ok) {
@@ -33,7 +34,7 @@ export const fetchCompatibleModels = createAsyncThunk(
 export const addCompatibleModel = createAsyncThunk(
   'compatibleModel/addCompatibleModel',
   async (model: { name: string }) => {
-    const response = await fetch('http://localhost:8083/api/v1/compatible-models', {
+    const response = await fetch(`${API_URL}/api/v1/compatible-models`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -51,7 +52,7 @@ export const addCompatibleModel = createAsyncThunk(
 export const updateCompatibleModel = createAsyncThunk(
   'compatibleModel/updateCompatibleModel',
   async ({ id, name }: { id: number; name: string }) => {
-    const response = await fetch(`http://localhost:8083/api/v1/compatible-models/${id}`, {
+    const response = await fetch(`${API_URL}/api/v1/compatible-models/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -69,7 +70,7 @@ export const updateCompatibleModel = createAsyncThunk(
 export const deleteCompatibleModel = createAsyncThunk(
   'compatibleModel/deleteCompatibleModel',
   async (id: number) => {
-    const response = await fetch(`http://localhost:8083/api/v1/compatible-models/${id}`, {
+    const response = await fetch(`${API_URL}/api/v1/compatible-models/${id}`, {
       method: 'DELETE',
       credentials: 'include',
     });
