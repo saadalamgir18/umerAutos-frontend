@@ -28,39 +28,46 @@ export default function DashboardClientPage() {
   useEffect(() => {
     setMounted(true)
 
-    async function fetchData() {
-      try {
-        const [todayExpRes, monthlyExpRes, monthlySales, todaySales] = await Promise.all([
-          fetch(`${API_URL}/api/v1/expenses/today`, {credentials: "include"}),
-          fetch(`${API_URL}/api/v1/expenses/monthly`, {credentials: "include"}),
-          fetch(`${API_URL}/api/v1/sales/monthly-revenue`, {credentials: "include"}),
-          fetch(`${API_URL}/api/v1/today-sale/totalSale`, {credentials: "include"}),
-        ])
+async function fetchData() {
+  try {
+    const [todayExpRes, monthlyExpRes, monthlySales, todaySales] = await Promise.all([
+      fetch(`${API_URL}/api/v1/expenses/today`, { credentials: "include" }),
+      fetch(`${API_URL}/api/v1/expenses/monthly`, { credentials: "include" }),
+      fetch(`${API_URL}/api/v1/sales/monthly-revenue`, { credentials: "include" }),
+      fetch(`${API_URL}/api/v1/today-sale/totalSale`, { credentials: "include" }),
+    ]);
 
-        const todayExpData = await todayExpRes.json()
-        const monthlyExpData = await monthlyExpRes.json()
-        const salesData = await monthlySales.json()
-        const todaySalesValue = await todaySales.json()
-
-          setTodayExpenses(todayExpData)
-
-          setMonthlyExpenses(monthlyExpData)
-      
-
-        if (salesData) {
-
-
-          setTodaySales([])
-          setMonthlySales([])
-          setTodaySalesRevenue(todaySalesValue)
-          setMonthlySalesRevenue(salesData)
-        }
-      } catch (err) {
-        console.error("Failed to fetch data", err)
-      } finally {
-        setLoading(false)
+    // Safe JSON parse helper
+    const safeJson = async (res: Response) => {
+      if (!res.ok) {
+        console.warn("API Error:", res.status, res.statusText);
+        return null; // unauthorized or error
       }
+      const text = await res.text();
+      return text ? JSON.parse(text) : null;
+    };
+
+    const todayExpData = await safeJson(todayExpRes);
+    const monthlyExpData = await safeJson(monthlyExpRes);
+    const salesData = await safeJson(monthlySales);
+    const todaySalesValue = await safeJson(todaySales);
+
+    if (todayExpData) setTodayExpenses(todayExpData);
+    if (monthlyExpData) setMonthlyExpenses(monthlyExpData);
+
+    if (salesData) {
+      setTodaySales([]);
+      setMonthlySales([]);
+      setTodaySalesRevenue(todaySalesValue || 0);
+      setMonthlySalesRevenue(salesData || 0);
     }
+  } catch (err) {
+    console.error("Failed to fetch data", err);
+  } finally {
+    setLoading(false);
+  }
+}
+
 
     fetchData()
   }, [])

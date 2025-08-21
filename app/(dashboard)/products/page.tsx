@@ -85,7 +85,7 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
-  const [itemsPerPage, setItemsPerPage] = useState(5)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
   const [hasNext, setHasNext] = useState(false)
   const [hasPrevious, setHasPrevious] = useState(false)
     const { user } = useAuth()
@@ -396,8 +396,9 @@ export default function ProductsPage() {
               <TableHeader  className="border-b-2 border-gray-400">
                 <TableRow className="">
                   <TableHead  className="text-black font-semibold">Product Name</TableHead>
-                  <TableHead className="text-black font-semibold">Brand</TableHead>
+                  
                   <TableHead className="text-black font-semibold">Compatible Models</TableHead>
+                  <TableHead className="text-black font-semibold">Brand</TableHead>
                   <TableHead className="text-black font-semibold">Shelf Code</TableHead>
                   
                   <TableHead className="text-center text-black font-semibold w-12">Stock</TableHead>
@@ -465,11 +466,7 @@ export default function ProductsPage() {
                           <div className="text-blue-700 font-bold">{product.name}</div>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="font-medium">
-                          {product.brandName || "No Brand"}
-                        </Badge>
-                      </TableCell>
+                     
                      
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
@@ -483,6 +480,11 @@ export default function ProductsPage() {
                             <span className="text-sm text-muted-foreground">No models</span>
                           )}
                         </div>
+                      </TableCell>
+                       <TableCell>
+                        <span className="font-medium">
+                          {product.brandName || "No Brand"}
+                        </span>
                       </TableCell>
                        <TableCell width={2}>
                         <Badge variant="destructive" className="font-mono">

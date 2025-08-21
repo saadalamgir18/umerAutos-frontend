@@ -363,8 +363,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="flex flex-col gap-2">
                   {!isSidebarCollapsed ? (
                     <>
-                      <div className="flex items-center justify-between px-2">
-                        <span className="text-sm text-muted-foreground">Theme</span>
+                      <div className="flex items-center justify-between px-2 text-gray-200">
+                        <span className="text-sm  text-muted-foreground">Theme</span>
                         <ThemeToggle />
                       </div>
                       <Button variant="outline" className="justify-start" onClick={handleLogout}>
