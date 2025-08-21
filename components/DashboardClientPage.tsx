@@ -75,7 +75,7 @@ export default function DashboardClientPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Welcome Back, {user?.name || "User"}!</h1>
         <div className="flex flex-wrap gap-2">
-          <Button asChild>
+          <Button variant={"destructive"} asChild>
             <Link href="/sales/new" className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4" />
               New Sale
@@ -86,7 +86,7 @@ export default function DashboardClientPage() {
 
       <Tabs defaultValue="daily" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="daily">Daily Overview</TabsTrigger>
+          <TabsTrigger  value="daily">Daily Overview</TabsTrigger>
           <TabsTrigger value="monthly">Monthly Overview</TabsTrigger>
         </TabsList>
 

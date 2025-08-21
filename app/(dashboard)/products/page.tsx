@@ -33,7 +33,6 @@ import {
   MoreHorizontal,
   Edit,
   Trash2,
-  AlertTriangle,
   RefreshCw,
   WifiOff,
   ChevronLeft,
@@ -43,6 +42,7 @@ import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { API_URL } from "@/lib/api";
+import { useAuth } from "@/lib/contexts/auth-context"
 
 interface Product {
   id: string
@@ -88,6 +88,8 @@ export default function ProductsPage() {
   const [itemsPerPage, setItemsPerPage] = useState(5)
   const [hasNext, setHasNext] = useState(false)
   const [hasPrevious, setHasPrevious] = useState(false)
+    const { user } = useAuth()
+    const isAdmin = user?.role[0] === "ROLE_ADMIN"
 
   const router = useRouter()
   const { toast } = useToast()
@@ -303,7 +305,7 @@ export default function ProductsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Products</h1>
           <p className="text-muted-foreground">Manage your inventory and product catalog</p>
@@ -318,7 +320,7 @@ export default function ProductsPage() {
             Add Product
           </Button>
         </div>
-      </div>
+      </div> */}
 
       {/* Error State */}
       {error && (
@@ -344,7 +346,7 @@ export default function ProductsPage() {
       )}
 
       <Card>
-        <CardHeader className="pb-3">
+        {/* <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
             Product Inventory
             {!error && (
@@ -358,11 +360,11 @@ export default function ProductsPage() {
               ? "Unable to load products. Please check your connection and try again."
               : ``}
           </CardDescription>
-        </CardHeader>
+        </CardHeader> */}
         <CardContent>
           {!error && (
-            <div className="flex items-center mb-4 gap-2">
-              <div className="relative flex-1 max-w-md">
+            <div className="flex items-center mb-4 gap-2 mt-2">
+              <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search products by name..."
@@ -389,18 +391,22 @@ export default function ProductsPage() {
             </div>
           )}
 
-          <div className="rounded-md border overflow-x-auto">
+          <div className="rounded-sm border overflow-x-auto p-2">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product Name</TableHead>
-                  <TableHead>Brand</TableHead>
-                  <TableHead>Shelf Code</TableHead>
-                  <TableHead>Compatible Models</TableHead>
-                  <TableHead className="text-center">Stock</TableHead>
-                  <TableHead className="text-right">Purchase Price</TableHead>
-                  <TableHead className="text-right">Selling Price</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+              <TableHeader  className="border-b-2 border-gray-400">
+                <TableRow className="">
+                  <TableHead  className="text-black font-semibold">Product Name</TableHead>
+                  <TableHead className="text-black font-semibold">Brand</TableHead>
+                  <TableHead className="text-black font-semibold">Compatible Models</TableHead>
+                  <TableHead className="text-black font-semibold">Shelf Code</TableHead>
+                  
+                  <TableHead className="text-center text-black font-semibold w-12">Stock</TableHead>
+                  {/* <TableHead className="text-right">Purchase Price</TableHead> */}
+                  <TableHead className="text-right text-black font-semibold">Selling Price</TableHead>
+                  {
+                    isAdmin ?? <TableHead className="text-right text-black font-semibold">Actions</TableHead>
+                  }
+                  
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -456,7 +462,7 @@ export default function ProductsPage() {
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">
                         <div>
-                          <div className="font-bold">{product.name}</div>
+                          <div className="text-blue-700 font-bold">{product.name}</div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -464,11 +470,7 @@ export default function ProductsPage() {
                           {product.brandName || "No Brand"}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="font-mono">
-                          {product.shelfCodeName || "N/A"}
-                        </Badge>
-                      </TableCell>
+                     
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {product.compatibleModels && product.compatibleModels.length > 0 ? (
@@ -482,19 +484,25 @@ export default function ProductsPage() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-center">
+                       <TableCell width={2}>
+                        <Badge variant="destructive" className="font-mono">
+                          {product.shelfCodeName || "N/A"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="w-2">
                         <div className="flex flex-col items-center gap-1">
                           <span className="font-medium text-lg">{product.quantityInStock}</span>
-                          {getStockStatus(product.quantityInStock)}
+                          {/* {getStockStatus(product.quantityInStock)} */}
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
+                      {/* <TableCell className="text-right">
                         <div className="font-medium">Rs. {product.purchasePrice.toLocaleString()}</div>
-                      </TableCell>
-                      <TableCell className="text-right">
+                      </TableCell> */}
+                      <TableCell className="text-center w-24">
                         <div className="font-medium text-green-600">Rs. {product.sellingPrice.toLocaleString()}</div>
                       </TableCell>
-                      <TableCell className="text-right">
+                      {
+                        isAdmin ?? <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
@@ -533,6 +541,8 @@ export default function ProductsPage() {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
+                      }
+                      
                     </TableRow>
                   ))
                 )}

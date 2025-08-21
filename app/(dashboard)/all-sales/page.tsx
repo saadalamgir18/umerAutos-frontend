@@ -36,6 +36,7 @@ import { API_URL } from "@/lib/api";
 
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useAuth } from "@/lib/contexts/auth-context"
 
 
 interface DailySaleItem {
@@ -65,6 +66,8 @@ export default function DailySalesPage() {
   const [itemsPerPage, setItemsPerPage] = useState(7)
   const [totalItems, setTotalItems] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
+  const { user } = useAuth()
+  const isAdmin = user?.role[0] === "ROLE_ADMIN"
 
   const fetchSales = async (page = currentPage, limit = itemsPerPage) => {
     setIsLoading(true)
@@ -284,9 +287,15 @@ export default function DailySalesPage() {
 
                   <TableHead>Product Name</TableHead>
                   <TableHead className="text-center">Quantity Sold</TableHead>
-                  <TableHead className="text-right">Profit</TableHead>
+                  {
+                    isAdmin ?? <TableHead className="text-right">Profit</TableHead>
+                  }
+                  
                   <TableHead className="text-right">Total Price</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  {
+                    isAdmin ??                   <TableHead className="text-right">Actions</TableHead>
+
+                  }
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -341,14 +350,19 @@ export default function DailySalesPage() {
                         <TableCell className="text-center">
                           <Badge
                             variant="outline"
-                            className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+                            className="bg-red-500 text-white dark:bg-red-500 dark:text-blue-300"
                           >
                             {item.quantitySold}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right">PKR {item?.profit?.toFixed(2)}</TableCell>
+                        {
+                          isAdmin ?? <TableCell className="text-right">PKR {item?.profit?.toFixed(2)}</TableCell>
+
+                        }
                         <TableCell className="text-right font-medium">PKR {item?.totalPrice?.toFixed(2)}</TableCell>
-                        <TableCell className="text-right">
+
+                        {
+                          isAdmin ?? <TableCell className="text-right">
 
                           <div className="flex items-center justify-end gap-2">
                             <Button
@@ -371,6 +385,8 @@ export default function DailySalesPage() {
                             </Button>
                           </div>
                         </TableCell>
+                        }
+                        
                       </TableRow>
                     ))}
                       {/* Add empty rows to maintain fixed height */}

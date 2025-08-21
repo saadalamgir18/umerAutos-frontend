@@ -20,7 +20,7 @@ const protectedRoutes = [
   "/all-sales",
   "/debtors",
 ]
-const adminRoutes = ["/users", "/expenses"]
+const adminRoutes = ["/users", "/expenses", "/products/add"]
 
 // Helper function to check if route is protected
 function isProtectedRoute(pathname: string): boolean {
@@ -53,12 +53,16 @@ async function verifyTokenWithBackend(token: string): Promise<{ isValid: boolean
 
     if (response.ok) {
       const userData = await response.json()
+        const roles = Array.isArray(userData.role) ? userData.role : [userData.role] // ensure always array
+        console.log("User roles from backend:", roles)
+
+
       return {
         isValid: true,
         user: {
           email: userData.username,
-          role: userData.role || [],
-          isAdmin: userData.role?.includes("ROLE_ADMIN") || false,
+          role: roles,
+          isAdmin: roles.includes("ROLE_ADMIN"),
         },
       }
     } else {
@@ -73,6 +77,7 @@ async function verifyTokenWithBackend(token: string): Promise<{ isValid: boolean
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  
   // Skip middleware for static files and API routes
   if (
     pathname.startsWith("/_next") ||
@@ -117,6 +122,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  if (isAdminRoute(pathname)) {
+  if (!isAuthenticated) {
+    return NextResponse.redirect(new URL("/login", request.url))
+  }
+  if (!isAdmin) {
+    return NextResponse.redirect(new URL("/", request.url))
+  }
+  return NextResponse.next()
+}
   // Handle protected routes
   if (isProtectedRoute(pathname)) {
     if (!isAuthenticated) {

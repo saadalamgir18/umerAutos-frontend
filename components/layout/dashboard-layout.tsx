@@ -172,7 +172,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <TooltipProvider>
-      <div className="flex min-h-screen flex-col bg-background">
+      <div className="flex min-h-screen flex-col bg-background bg-gray-50">
         {/* Mobile Header */}
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur px-4 md:hidden">
           <Sheet>
@@ -279,7 +279,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Desktop Sidebar */}
           <aside
             className={`hidden md:flex flex-col border-r bg-card transition-all duration-300 sticky top-0 h-screen ${
-              isSidebarCollapsed ? "w-[4.5rem]" : "w-64"
+              isSidebarCollapsed ? "w-[4.5rem]" : "w-48"
             }`}
           >
             <div className="flex h-16 items-center gap-2 border-b px-4">
@@ -302,7 +302,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Button>
             </div>
 
-            <div className="flex flex-col h-[calc(100vh-4rem)] p-4">
+            <div className="flex flex-col h-[calc(100vh-4rem)] p-4 bg-[#1B2842]">
               {!isSidebarCollapsed && (
                 <div className="flex items-center gap-2 mb-6">
                   <Avatar>
@@ -311,28 +311,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="font-medium">{displayName}</span>
+                    <span className="font-medium text-gray-300">{displayName}</span>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       {userRole === "Admin" && <Shield className="h-3 w-3 text-primary" />}
-                      <span className="capitalize">{userRole}</span>
+                      <span className="capitalize text-gray-400">{userRole}</span>
                     </div>
                   </div>
                 </div>
               )}
 
-              <nav className="flex-1">
+              <nav className="flex-1 ">
                 <ul className="grid gap-1">
-                  {navItems.map((item) => (
+                  {navItems.map((item) => {
+                    if (item.title === "Users" && !isAdmin()) {
+                      return null;
+                    }
+                    return (
                     <li key={item.href}>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Link
                             href={item.href}
-                            className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                              pathname === item.href
-                                ? "bg-primary text-primary-foreground"
-                                : "hover:bg-muted hover:text-foreground"
-                            }`}
+                            className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors text-gray-200 hover:text-gray-400`}
                           >
                             {item.icon}
                             {!isSidebarCollapsed && (
@@ -354,8 +354,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </TooltipTrigger>
                         {isSidebarCollapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
                       </Tooltip>
-                    </li>
-                  ))}
+                    </li>)
+                  })}
                 </ul>
               </nav>
 

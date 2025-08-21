@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/pagination"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { API_URL } from "@/lib/api";
+import { useAuth } from "@/lib/contexts/auth-context"
 
 interface DailySaleItem {
   id: string
@@ -56,6 +57,8 @@ export default function DailySalesPage() {
   const [itemsPerPage, setItemsPerPage] = useState(5)
   const [totalPages, setTotalPages] = useState(1)
   const [totalDailySales, setTotalDailySales] = useState(0)
+    const { user } = useAuth()
+    const isAdmin = user?.role[0] === "ROLE_ADMIN"
 
   const router = useRouter()
 
@@ -196,7 +199,9 @@ export default function DailySalesPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+
+{
+  isAdmin ?? <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Today Profit</CardTitle>
             <ShoppingCart className="h-4 w-4 text-green-500" />
@@ -206,6 +211,8 @@ export default function DailySalesPage() {
             {/* <div className="text-sm text-muted-foreground mt-1">Per transaction</div> */}
           </CardContent>
         </Card>
+}
+        
       </div>
 
       {/* Sales Table */}

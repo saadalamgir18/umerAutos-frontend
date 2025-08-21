@@ -7,15 +7,23 @@ import { addItemToSale, removeItemFromSale, updateItemQuantity, clearSale } from
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Search, Plus, Trash2, Save, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useToast } from "@/components/ui/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { toastUtils } from "@/lib/utils/toast-utils"
-import { API_URL } from "@/lib/api";
+import { API_URL } from "@/lib/api"
+
+// dialog
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 
 // Define the product type based on the API response
 interface Product {
@@ -48,7 +56,7 @@ interface SaleDTO {
   totalAmount: number
 }
 
-// Define the sale request interface based on the Spring Boot DTOs
+// Define the sale request interface
 interface SaleRequest {
   customerName: string
   paymentStatus: string
@@ -61,37 +69,37 @@ export default function NewSalePage() {
   const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
   const { currentSale } = useSelector((state: RootState) => state.sales)
+
   const [searchTerm, setSearchTerm] = useState("")
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [quantity, setQuantity] = useState(1)
+
   const [customerName, setCustomerName] = useState("")
   const [paymentStatus, setPaymentStatus] = useState<"PAID" | "UNPAID" | "PARTIAL">("PAID")
   const [paymentAmount, setPaymentAmount] = useState(0)
+
   const [mounted, setMounted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // dialog state
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
   useEffect(() => {
     setMounted(true)
-    // No initial fetch of all products
   }, [])
 
   useEffect(() => {
-    // Debounce search to avoid too many API calls
     const handler = setTimeout(() => {
       if (searchTerm) {
         fetchProducts(searchTerm)
       } else {
-        // Clear results when search is empty
         setFilteredProducts([])
       }
     }, 300)
-
-    return () => {
-      clearTimeout(handler)
-    }
+    return () => clearTimeout(handler)
   }, [searchTerm])
 
   useEffect(() => {
@@ -100,19 +108,13 @@ export default function NewSalePage() {
 
   const fetchProducts = async (search = "") => {
     if (!search) return
-
     setIsLoading(true)
     setError(null)
     try {
       const url = `${API_URL}/api/v1/products?name=${encodeURIComponent(search)}`
-      const response = await fetch(url, { credentials: "include"})
-
-      if (!response.ok) {
-        throw new Error(`Error fetching products: ${response.status}`)
-      }
-
+      const response = await fetch(url, { credentials: "include" })
+      if (!response.ok) throw new Error(`Error fetching products: ${response.status}`)
       const data = await response.json()
-      
       setFilteredProducts(data.data)
     } catch (err) {
       console.error("Failed to fetch products:", err)
@@ -139,15 +141,15 @@ export default function NewSalePage() {
         quantity,
         unitPrice: selectedProduct.sellingPrice,
         discount: 0,
-        tax: 0, // Default tax rate
-        total: quantity * selectedProduct.sellingPrice, // Including tax
-      }),
+        tax: 0,
+        total: quantity * selectedProduct.sellingPrice,
+      })
     )
 
     setSelectedProduct(null)
     setQuantity(1)
     setSearchTerm("")
-    setFilteredProducts([]) // Clear search results after adding item
+    setFilteredProducts([])
   }
 
   const handleRemoveItem = (productId: string) => {
@@ -160,135 +162,26 @@ export default function NewSalePage() {
     }
   }
 
-  const handleCompleteSale = async () => {
-    const loadingToastId = toastUtils.loading("Creating sale...")
-    
-    if (currentSale.items.length === 0) {
-      toastUtils.update(loadingToastId, "warning", "No item selected")
-      
-      return
-    }
-
-    // Validate payment amount for partial or paid status
-    if (paymentStatus === "PAID" && paymentAmount < currentSale.total) {
-      toastUtils.update(loadingToastId, "info", "PAID")
-     
-      return
-    }
-
-    if (paymentStatus === "PARTIAL" && (paymentAmount <= 0 || paymentAmount >= currentSale.total)) {
-           toastUtils.update(loadingToastId, "info", "PARTIAL")
-
-      return
-    }
-
-    if (paymentStatus === "UNPAID" && paymentAmount > 0) {
-        toastUtils.update(loadingToastId, "warning", "UNPAID")
-
-      return
-    }
-
-    // Calculate total quantity sold
-    const totalQuantitySold = currentSale.items.reduce((total, item) => total + item.quantity, 0)
-
-    // Create the sale request object for the API based on the DTO structure
-    const saleRequest: SaleRequest = {
-      customerName: customerName || "Walk-in Customer",
-      paymentStatus: paymentStatus,
-      totalAmountSummary: currentSale.total,
-      quantitySoldSummary: totalQuantitySold,
-      saleItems: currentSale.items.map((item) => ({
-        productId: item.productId,
-        quantitySold: item.quantity,
-        totalAmount: item.total,
-      })),
-    }
-
-    
-
-    setIsSaving(true)
-
-    try {
-      // Send the sale data to the API
-      const response = await fetch(`${API_URL}/api/v1/sales-summary`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(saleRequest),
-         credentials: "include"
-      })
-
-      if (!response.ok) {
-        throw new Error(`Error saving sale: ${response.status}`)
-      }
-
-
-      toastUtils.update(loadingToastId , "success", "Sales created successfully")
-      
-
-      // Update inventory in Redux store
-      // Complete the sale in Redux store for local state
-      dispatch(clearSale())
-
-      
-      router.push("/sales")
-    } catch (err) {
-      console.error("Failed to save sale:", err)
-      toastUtils.update(loadingToastId, "error", "fail to save sale")
-
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  // Helper function to format compatible models for display
-  const formatCompatibleModels = (models: string[]) => {
-    if (!models || models.length === 0) return "N/A"
-    return models.join(", ")
-  }
+  // helper
+  const formatCompatibleModels = (models: string[]) =>
+    !models || models.length === 0 ? "N/A" : models.join(", ")
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">New Sale</h1>
-        <Button onClick={handleCompleteSale} disabled={isSaving}>
-          {isSaving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" />
-              Complete Sale
-            </>
-          )}
-        </Button>
-      </div>
-
       <div className="grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2 space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Add Products</CardTitle>
-              <CardDescription>Search and add products to the current sale</CardDescription>
-            </CardHeader>
             <CardContent>
               <div className="flex flex-col space-y-4">
                 <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="productSearch">Search Product</Label>
-                    <div className="relative">
-                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="productSearch"
-                        placeholder="Search by name..."
-                        className="pl-8"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    </div>
+                  <div className="relative mt-2">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by name..."
+                      className="pl-8"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                   </div>
 
                   {isLoading ? (
@@ -299,7 +192,7 @@ export default function NewSalePage() {
                   ) : error ? (
                     <div className="text-center py-4 text-red-500">{error}</div>
                   ) : searchTerm && filteredProducts.length > 0 ? (
-                    <div className="max-h-[200px] overflow-auto border rounded-md">
+                    <div className="max-h-[400px] overflow-auto border rounded-md">
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -314,36 +207,24 @@ export default function NewSalePage() {
                         </TableHeader>
                         <TableBody>
                           {filteredProducts.map((product) => (
-                            <TableRow
-                              key={product.id}
-                              className={selectedProduct?.id === product.id ? "bg-accent" : ""}
-                              onClick={() => {
-                                setSelectedProduct(product)
-                                setQuantity(1)
-                              }}
-                            >
-                              <TableCell className="font-medium">{product.name}</TableCell>
+                            <TableRow key={product.id}>
+                              <TableCell>{product.name}</TableCell>
                               <TableCell>{product.brandName || "N/A"}</TableCell>
                               <TableCell className="max-w-[150px] truncate">
                                 {formatCompatibleModels(product.compatibleModels)}
                               </TableCell>
                               <TableCell>
-                                <Badge
-                                  variant="outline"
-                                  className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                                >
-                                  {product.shelfCodeName || "N/A"}
-                                </Badge>
+                                <Badge variant="outline">{product.shelfCodeName || "N/A"}</Badge>
                               </TableCell>
                               <TableCell>PKR {product.sellingPrice.toFixed(2)}</TableCell>
                               <TableCell>{product.quantityInStock}</TableCell>
                               <TableCell>
                                 <Button
-                                  variant="ghost"
-                                  size="sm"
+                                  variant="destructive"
                                   onClick={() => {
                                     setSelectedProduct(product)
                                     setQuantity(1)
+                                    setIsDialogOpen(true)
                                   }}
                                 >
                                   Select
@@ -359,50 +240,29 @@ export default function NewSalePage() {
                   ) : (
                     <div className="text-center py-4 text-muted-foreground">Type to search products</div>
                   )}
+                </div>
 
-                  {selectedProduct && (
-                    <div className="space-y-4 border rounded-md p-4 mt-2">
-                      <div className="font-medium">
-                        Selected Product: {selectedProduct.name}
-                        <div className="text-sm mt-1">
-                          <span className="font-medium">Brand:</span> {selectedProduct.brandName || "N/A"}
-                        </div>
-                        {selectedProduct.compatibleModels && selectedProduct.compatibleModels.length > 0 && (
-                          <div className="text-sm mt-1">
-                            <span className="font-medium">Compatible Models:</span>
-                            <ul className="list-disc pl-5 mt-1 text-muted-foreground">
-                              {selectedProduct.compatibleModels.map((model, index) => (
-                                <li key={index}>{model}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                        {selectedProduct.shelfCodeName && (
-                          <div className="mt-2">
-                            <Badge
-                              variant="outline"
-                              className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                            >
-                              Shelf: {selectedProduct.shelfCodeName}
-                            </Badge>
-                          </div>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="quantity">Quantity</Label>
-                          <div className="flex items-center space-x-2">
+                {/* Dialog for selected product */}
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{selectedProduct?.name}</DialogTitle>
+                    </DialogHeader>
+
+                    {selectedProduct && (
+                      <div className="space-y-4">
+                        <div>
+                          <Label>Quantity</Label>
+                          <div className="flex items-center space-x-2 mt-1">
                             <Button
                               variant="outline"
                               size="icon"
-                              className="h-8 w-8"
                               onClick={() => setQuantity(Math.max(1, quantity - 1))}
                               disabled={quantity <= 1}
                             >
                               -
                             </Button>
                             <Input
-                              id="quantity"
                               type="number"
                               min="1"
                               max={selectedProduct.quantityInStock}
@@ -413,55 +273,64 @@ export default function NewSalePage() {
                             <Button
                               variant="outline"
                               size="icon"
-                              className="h-8 w-8"
-                              onClick={() => setQuantity(Math.min(selectedProduct.quantityInStock, quantity + 1))}
+                              onClick={() =>
+                                setQuantity(Math.min(selectedProduct.quantityInStock, quantity + 1))
+                              }
                               disabled={quantity >= selectedProduct.quantityInStock}
                             >
                               +
                             </Button>
                           </div>
-                          {selectedProduct.quantityInStock < 5 && (
-                            <p className="text-xs text-amber-500">Only {selectedProduct.quantityInStock} in stock</p>
-                          )}
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="sellingPrice">Selling Price (PKR)</Label>
+
+                        <div>
+                          <Label>Selling Price (PKR)</Label>
                           <Input
-                            id="sellingPrice"
                             type="number"
                             min="0.01"
                             step="0.01"
                             value={selectedProduct.sellingPrice}
-                            onChange={(e) => {
-                              const newPrice = Number.parseFloat(e.target.value) || 0
-                              setSelectedProduct({ ...selectedProduct, sellingPrice: newPrice })
-                            }}
+                            onChange={(e) =>
+                              setSelectedProduct({
+                                ...selectedProduct,
+                                sellingPrice: Number.parseFloat(e.target.value) || 0,
+                              })
+                            }
                           />
                         </div>
-                      </div>
-                      <div className="flex justify-between items-center pt-2">
+
                         <div className="font-medium">
                           Total: PKR {(selectedProduct.sellingPrice * quantity).toFixed(2)}
                         </div>
-                        <Button onClick={handleAddItem} disabled={!selectedProduct || quantity <= 0}>
-                          <Plus className="mr-2 h-4 w-4" />
-                          Add to Sale
-                        </Button>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
 
+                    <DialogFooter>
+                      <Button
+                      variant={"destructive"}
+                        onClick={() => {
+                          handleAddItem()
+                          setIsDialogOpen(false)
+                        }}
+                        disabled={!selectedProduct || quantity <= 0}
+                      >
+                        <Plus className="mr-2 h-4 w-4" /> Add to Sale
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Selected items table */}
                 <div className="rounded-md border">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Product</TableHead>
                         <TableHead>Brand</TableHead>
-                        <TableHead>Compatible Models</TableHead>
+                        <TableHead>Models</TableHead>
                         <TableHead>Shelf</TableHead>
                         <TableHead>Price</TableHead>
-                        <TableHead>Quantity</TableHead>
+                        <TableHead>Qty</TableHead>
                         <TableHead>Total</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
@@ -476,20 +345,15 @@ export default function NewSalePage() {
                       ) : (
                         currentSale.items.map((item) => (
                           <TableRow key={item.productId}>
-                            <TableCell className="font-medium">{item.productName}</TableCell>
+                            <TableCell>{item.productName}</TableCell>
                             <TableCell>{item.brandName || "N/A"}</TableCell>
                             <TableCell className="max-w-[150px] truncate">
-                              {item.compatibleModels && item.compatibleModels.length > 0
+                              {item.compatibleModels?.length
                                 ? formatCompatibleModels(item.compatibleModels)
                                 : "N/A"}
                             </TableCell>
                             <TableCell>
-                              <Badge
-                                variant="outline"
-                                className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                              >
-                                {item.shelfCode || "N/A"}
-                              </Badge>
+                              <Badge variant="outline">{item.shelfCode || "N/A"}</Badge>
                             </TableCell>
                             <TableCell>PKR {item.unitPrice.toFixed(2)}</TableCell>
                             <TableCell>
@@ -497,7 +361,6 @@ export default function NewSalePage() {
                                 <Button
                                   variant="outline"
                                   size="icon"
-                                  className="h-8 w-8"
                                   onClick={() => handleQuantityChange(item.productId, item.quantity - 1)}
                                   disabled={item.quantity <= 1}
                                 >
@@ -507,7 +370,6 @@ export default function NewSalePage() {
                                 <Button
                                   variant="outline"
                                   size="icon"
-                                  className="h-8 w-8"
                                   onClick={() => handleQuantityChange(item.productId, item.quantity + 1)}
                                 >
                                   +
@@ -519,11 +381,10 @@ export default function NewSalePage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+                                className="text-red-500"
                                 onClick={() => handleRemoveItem(item.productId)}
                               >
                                 <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">Remove</span>
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -537,33 +398,30 @@ export default function NewSalePage() {
           </Card>
         </div>
 
+        {/* Right side summary */}
         <div className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Sale Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="customer">Customer Name (Optional)</Label>
+              <div>
+                <Label>Customer Name (Optional)</Label>
                 <Input
-                  id="customer"
                   placeholder="Walk-in Customer"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="payment-status">Payment Status</Label>
+              <div>
+                <Label>Payment Status</Label>
                 <Select
                   value={paymentStatus}
                   onValueChange={(value: "PAID" | "UNPAID" | "PARTIAL") => {
                     setPaymentStatus(value)
-                    if (value === "PAID") {
-                      setPaymentAmount(currentSale.total)
-                    } else if (value === "UNPAID") {
-                      setPaymentAmount(0)
-                    }
+                    if (value === "PAID") setPaymentAmount(currentSale.total)
+                    else if (value === "UNPAID") setPaymentAmount(0)
                   }}
                 >
                   <SelectTrigger>
@@ -578,10 +436,9 @@ export default function NewSalePage() {
               </div>
 
               {paymentStatus !== "UNPAID" && (
-                <div className="space-y-2">
-                  <Label htmlFor="payment-amount">Payment Amount</Label>
+                <div>
+                  <Label>Payment Amount</Label>
                   <Input
-                    id="payment-amount"
                     type="number"
                     min="0"
                     step="0.01"
@@ -596,25 +453,17 @@ export default function NewSalePage() {
                   <span>Subtotal:</span>
                   <span>PKR {currentSale.subtotal.toFixed(2)}</span>
                 </div>
-                {/* <div className="flex justify-between">
-                  <span>Discount:</span>
-                  <span>-PKR {currentSale.discount.toFixed(2)}</span>
-                </div> */}
-                {/* <div className="flex justify-between">
-                  <span>Tax (10%):</span>
-                  <span>PKR {currentSale.tax.toFixed(2)}</span>
-                </div> */}
                 <div className="flex justify-between font-bold pt-2 border-t">
                   <span>Total:</span>
                   <span>PKR {currentSale.total.toFixed(2)}</span>
                 </div>
                 {paymentStatus === "PARTIAL" && (
                   <>
-                    <div className="flex justify-between text-green-600 dark:text-green-400">
+                    <div className="flex justify-between text-green-600">
                       <span>Paid:</span>
                       <span>PKR {paymentAmount.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-red-600 dark:text-red-400">
+                    <div className="flex justify-between text-red-600">
                       <span>Balance:</span>
                       <span>PKR {(currentSale.total - paymentAmount).toFixed(2)}</span>
                     </div>
@@ -623,11 +472,10 @@ export default function NewSalePage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={handleCompleteSale} disabled={isSaving}>
+              <Button className="w-full" variant={"destructive"} disabled={isSaving}>
                 {isSaving ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
                   </>
                 ) : (
                   "Complete Sale"
