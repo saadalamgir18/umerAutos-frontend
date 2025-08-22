@@ -54,7 +54,7 @@ export default function DailySalesPage() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(5)
+  const [itemsPerPage, setItemsPerPage] = useState(8)
   const [totalPages, setTotalPages] = useState(1)
   const [totalDailySales, setTotalDailySales] = useState(0)
     const { user } = useAuth()
@@ -170,23 +170,23 @@ export default function DailySalesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Daily Sales Report</h1>
         <div className="flex items-center gap-2 text-muted-foreground">
           <Calendar className="h-5 w-5" />
           <span>{format(new Date(), "MMMM d, yyyy")}</span>
         </div>
-      </div>
+      </div> */}
 
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="shadow-sm">
+        <Card className="shadow-sm " >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
             <DollarSign className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">PKR {totalSales.toFixed(2)}</div>
+            <div className="text-2xl text-green-500 font-bold">PKR {totalSales.toFixed(2)}</div>
             <div className="text-sm text-muted-foreground mt-1">{totalTransactions} transactions today</div>
           </CardContent>
         </Card>
@@ -238,7 +238,10 @@ export default function DailySalesPage() {
                     <TableRow>
                       <TableHead>Product Name</TableHead>
                       <TableHead className="text-center">Quantity Sold</TableHead>
-                      <TableHead className="text-right">Profit</TableHead>
+                      {
+                        isAdmin ?? <TableHead className="text-right">Profit</TableHead>
+                      }
+                      
                       <TableHead className="text-right">Total Price</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -265,7 +268,10 @@ export default function DailySalesPage() {
                               {item.quantitySold}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-right">PKR {item?.profit?.toFixed(2)}</TableCell>
+                          {
+                            isAdmin ?? <TableCell className="text-right">PKR {item?.profit?.toFixed(2)}</TableCell>
+
+                          }
                           <TableCell className="text-right font-medium">PKR {item?.totalPrice?.toFixed(2)}</TableCell>
                         </TableRow>
                       ))

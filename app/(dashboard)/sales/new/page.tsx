@@ -84,6 +84,7 @@ export default function NewSalePage() {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+
   // dialog state
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
@@ -124,6 +125,73 @@ export default function NewSalePage() {
       setIsLoading(false)
     }
   }
+  const handleCompleteSale = async () => {
+      const loadingToastId = toastUtils.loading("Creating sale...")
+  
+      if (currentSale.items.length === 0) {
+        toastUtils.update(loadingToastId, "warning", "No items selected")
+        return
+      }
+  
+      // Validate payment amount for partial or paid status
+      if (paymentStatus === "PAID" && paymentAmount < currentSale.total) {
+        toastUtils.update(loadingToastId, "error", "Payment amount must equal total for PAID status")
+        return
+      }
+  
+      if (paymentStatus === "PARTIAL" && (paymentAmount <= 0 || paymentAmount >= currentSale.total)) {
+        toastUtils.update(loadingToastId, "error", "Partial payment must be between 0 and total amount")
+        return
+      }
+  
+      if (paymentStatus === "UNPAID" && paymentAmount > 0) {
+        toastUtils.update(loadingToastId, "error", "Payment amount must be 0 for UNPAID status")
+        return
+      }
+  
+      // Calculate total quantity sold
+      const totalQuantitySold = currentSale.items.reduce((total, item) => total + item.quantity, 0)
+  
+      // Create the sale request object for the API based on the DTO structure
+      const saleRequest: SaleRequest = {
+        customerName: customerName || "Walk-in Customer",
+        paymentStatus: paymentStatus,
+        totalAmountSummary: currentSale.total,
+        quantitySoldSummary: totalQuantitySold,
+        saleItems: currentSale.items.map((item) => ({
+          productId: item.productId,
+          quantitySold: item.quantity,
+          totalAmount: item.total,
+        })),
+      }
+  
+      setIsSaving(true)
+  
+      try {
+        const response = await fetch(`${API_URL}/api/v1/sales-summary`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(saleRequest),
+          
+        })
+  
+        if (!response.ok) {
+          throw new Error(`Error saving sale: ${response.status}`)
+        }
+  
+        toastUtils.update(loadingToastId, "success", "Sale created successfully")
+        dispatch(clearSale())
+        router.push("/sales")
+      } catch (err) {
+        console.error("Failed to save sale:", err)
+        toastUtils.update(loadingToastId, "error", "Failed to save sale")
+      } finally {
+        setIsSaving(false)
+      }
+    }
 
   if (!mounted) return null
 
@@ -472,7 +540,9 @@ export default function NewSalePage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" variant={"destructive"} disabled={isSaving}>
+              <Button 
+              onClick={handleCompleteSale}
+              className="w-full" variant={"destructive"} disabled={isSaving}>
                 {isSaving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
